@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Juego Avanzado de Matemáticas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            padding-bottom: 60px;
+            min-height: 100vh;
+            position: relative;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            overflow-x: hidden;
+        }
+
+        .app-header {
+            background: linear-gradient(45deg, #2196F3, #00BCD4);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 0 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .timer {
+            font-size: 1.5rem;
+            color: #FF5722;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .question-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            max-width: 800px;
+            margin-bottom: 2rem;
+        }
+
+        .operation {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            padding: 0 1rem;
+        }
+
+        .option {
+            padding: 1rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 5px 5px 10px #d9d9d9, -5px -5px 10px #ffffff;
+        }
+
+        .option:hover {
+            transform: translateY(-2px);
+            box-shadow: 7px 7px 14px #d9d9d9, -7px -7px 14px #ffffff;
+        }
+
+        .option.correct {
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .option.incorrect {
+            background: linear-gradient(145deg, #f44336, #e53935);
+            color: white;
+        }
+
+        .streak-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .streak-flame {
+            color: #FF5722;
+            animation: flame 0.5s ease infinite alternate;
+        }
+
+        @keyframes flame {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
+        }
+
+        nav {
+            background: rgba(51, 51, 51, 0.95);
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        nav a.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #4CAF50;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <header class="app-header" id="header">
+    <div class="header-content">
+        <h1><i class="fas fa-brain"></i> Juego Matemático</h1>
+        <p><i class="fa fa-user-edit"></i> Powered By Andres Alvarez</p>
+        <p class="version"><i class="fa fa-code"></i> Versión 2.0.3</p>
+    </div>
+</header>
+<div class="stats-bar">
+        <div class="stat-item">
+            <i class="fas fa-star"></i>
+            <span>Puntos: </span>
+            <span class="points">0</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+            <i class="fas fa-trophy"></i>
+            <span>Nivel: </span>
+            <span class="level">1</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+            <i class="fas fa-fire"></i>
+            <span>Racha: </span>
+            <span class="streak">0</span>
+        </div>
+    </div>
+    <div class="timer"> 30</div>
+    <style>
+   /* Estilo general para la barra de estadísticas */
+.stats-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #f0f0f0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenedor de los botones de puntos, nivel y racha */
+.stats-bar .points-level-streak {
+    display: flex;
+    align-items: center;
+}
+
+/* Estilo para cada item de la barra de estadísticas */
+.stat-item {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+/* Iconos dentro de los items */
+.stat-item i {
+    margin-right: 8px;
+    font-size: 1.2em;
+}
+
+/* Estilo para el texto de los puntos, nivel y racha */
+.stat-item span {
+    font-size: 1.1em;
+}
+
+/* Divider entre los items */
+.stat-divider {
+    width: 1px;
+    height: 40px;
+    background-color: #ddd;
+    margin: 0 10px;
+}
+
+/* Estilo del temporizador */
+.timer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    font-size: 1.5em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+}
+
+.timer i {
+    margin-right: 10px;
+    font-size: 1.5em;
+}
+
+/* Estilo del icono de temporizador */
+.timer::before {
+    content: '\f017'; /* Icono de reloj de Font Awesome */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-right: 8px;
+}
+
+
+    </style>
+ 
+<!-- Modal de Instrucciones y Información Adicional -->
+<div id="instructionsModal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close-btn"><i class="fa fa-times"></i></span>
+        
+        <h2><i class="fa fa-info-circle"></i> Información Adicional de la App</h2>
+        
+        <h3><i class="fa fa-bullseye"></i> Objetivo del Juego</h3>
+        <p><i class="fa fa-gamepad"></i> ¡Bienvenido al <b>Juego Matemático</b>! Aquí aprenderás y pondrás a prueba tus habilidades matemáticas.</p>
+
+        <h3><i class="fa fa-list"></i> Categorías</h3>
+        <ul>
+            <li><i class="fa fa-check-circle"></i> <b>Básicas:</b> 
+                <ul>
+                    <li>Operaciones combinadas con suma, resta, multiplicación y división</li>
+                    <li>Dificultad aumenta con múltiples términos</li>
+                    <li>Ejemplo: (7 + 5) × 3 ÷ 2 = ?</li>
+                </ul>
+            </li>
+            <li><i class="fa fa-check-circle"></i> <b>Trigonometría:</b>
+                <ul>
+                    <li>Funciones trigonométricas: sin, cos, tan, sec, csc, cot</li>
+                    <li>Ángulos especiales: 0°, 30°, 45°, 60°, 90°, 120°, 150°, 180°</li>
+                    <li>Ejemplo: sin(30°) = 0.5</li>
+                </ul>
+            </li>
+            <li><i class="fa fa-check-circle"></i> <b>Avanzadas:</b>
+                <ul>
+                    <li>Derivadas e integrales</li>
+                    <li>Límites y factorización</li>
+                    <li>Ecuaciones cuadráticas</li>
+                    <li>Ejemplo: Deriva 3x² = 6x</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3><i class="fa fa-star"></i> Sistema de Puntuación</h3>
+        <ul>
+            <li><i class="fa fa-trophy"></i> <b>Puntos Base:</b> 10 puntos por respuesta correcta</li>
+            <li><i class="fa fa-fire"></i> <b>Bonus por Racha:</b> +5 puntos extra cada 3 respuestas correctas seguidas</li>
+            <li><i class="fa fa-clock"></i> <b>Bonus por Tiempo:</b> Puntos extra por responder rápido</li>
+            <li><i class="fa fa-level-up-alt"></i> <b>Subida de Nivel:</b> Cada 100 puntos aumenta la dificultad</li>
+        </ul>
+
+        <h3><i class="fa fa-lightbulb"></i> Consejos</h3>
+        <ul>
+            <li><i class="fa fa-hourglass-half"></i> Tienes 30 segundos para cada pregunta</li>
+            <li><i class="fa fa-fire"></i> Mantén rachas largas para maximizar puntos</li>
+            <li><i class="fa fa-fast-forward"></i> Responde rápido para obtener bonus de tiempo</li>
+            <li><i class="fa fa-chart-line"></i> La dificultad aumenta con tu nivel</li>
+        </ul>
+
+        <h3><i class="fa fa-cogs"></i> Información Adicional de la App</h3>
+        
+        <h4>Versión 1.0.3 (Math Game with Instructions)</h4>
+        <ul>
+            <li><b>Interfaz:</b> Diseño básico, navegación simple, modal de instrucciones básico.</li>
+            <li><b>Funcionalidades:</b> Operaciones matemáticas básicas, sistema de puntos simple, sin sistema de tiempo ni rachas.</li>
+            <li><b>Categorías:</b> Operaciones básicas, trigonometría básica, problemas algebraicos simples.</li>
+            <li><b>Aspectos Técnicos:</b> Almacenamiento local básico, sin persistencia entre sesiones.</li>
+        </ul>
+
+        <h4>Versión 2.0.3 (Nueva Versión)</h4>
+        <ul>
+            <li><b>Interfaz Mejorada:</b> Diseño moderno con gradientes, animaciones, temporizador visible, indicador de racha.</li>
+            <li><b>Nuevas Funcionalidades:</b> Sistema de tiempo, puntuación compleja, dificultad adaptativa, mensajes de nivel completado.</li>
+            <li><b>Categorías Expandidas:</b> Más funciones trigonométricas, mayor rango de ángulos, integración de temas avanzados como derivadas y límites.</li>
+            <li><b>Mejoras Técnicas:</b> Persistencia de datos, manejo de estados avanzado, optimización de rendimiento, mayor responsividad.</li>
+            <li><b>Experiencia de Usuario:</b> Feedback inmediato, animaciones de transición, jerarquía visual clara, mejor accesibilidad.</li>
+        </ul>
+
+        <h3>Principales Diferencias</h3>
+        <ul>
+            <li><b>Complejidad:</b> V1.0.3: Sistema simple | V2.0.3: Sistema más elaborado</li>
+            <li><b>Engagement:</b> V1.0.3: Básico | V2.0.3: Mayor retención gracias a sistema de rachas</li>
+            <li><b>Dificultad:</b> V1.0.3: Estática | V2.0.3: Adaptativa</li>
+            <li><b>Técnica:</b> V1.0.3: Básica | V2.0.3: Arquitectura robusta y escalable</li>
+        </ul>
+    </div>
+</div>
+
+
+<style>
+/* ... Estilos previos del header ... */
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    color: #333;
+    transition: transform 0.3s ease;
+}
+
+.modal-content h2 {
+    color: #2196F3;
+    margin-bottom: 1rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.modal-content h3 {
+    color: #00BCD4;
+    margin: 1.5rem 0 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.modal-content ul {
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+}
+
+.modal-content ul ul {
+    padding-left: 2rem;
+    margin: 0.25rem 0;
+}
+
+.modal-content li {
+    margin: 0.5rem 0;
+    line-height: 1.5;
+    font-size: 1rem;
+    color: #555;
+}
+
+.close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+    color: #2196F3;
+}
+
+.hidden {
+    display: none;
+}
+
+</style>
+
+<script>
+// Referencias
+const header = document.getElementById('header');
+const modal = document.getElementById('instructionsModal');
+const closeBtn = document.querySelector('.close-btn');
+
+// Mostrar modal al hacer clic en el header
+header.addEventListener('click', () => {
+    modal.style.display = 'flex';
+});
+
+// Cerrar modal con el botón
+closeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    modal.style.display = 'none';
+});
+
+// Cerrar modal al hacer clic fuera
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        modal.style.display = 'none';
+    }
+});
+
+// Prevenir que el clic en el contenido del modal cierre el modal
+document.querySelector('.modal-content').addEventListener('click', (e) => {
+    e.stopPropagation();
+});
+</script>
+    <div class="question-container">
+        <div class="operation"></div>
+        <div class="options"></div>
+    </div>
+
+    <div class="streak-indicator" style="display: none;">
+        <i class="fas fa-fire streak-flame"></i>
+        <span class="streak-count">0</span>
+    </div>
+
+    <nav>
+        <a href="#" data-section="basic" class="active">
+            <i class="fas fa-calculator"></i>
+            <span>Básicas</span>
+        </a>
+        <a href="#" data-section="trig">
+            <i class="fas fa-square-root-alt"></i>
+            <span>Trigonometría</span>
+        </a>
+        <a href="#" data-section="advanced">
+            <i class="fas fa-superscript"></i>
+            <span>Avanzadas</span>
+        </a>
+    </nav>
+<script>
+  class EnhancedMathGame {
+    constructor() {
+        this.loadGameState();
+        this.bindEvents();
+        this.startTimer();
+    }
+
+    loadGameState() {
+        // Cargar el estado guardado o usar valores por defecto
+        const savedState = JSON.parse(localStorage.getItem('mathGameState')) || {
+            score: 0,
+            level: 1,
+            streak: 0,
+            currentSection: 'basic'
+        };
+
+        this.score = savedState.score;
+        this.level = savedState.level;
+        this.streak = savedState.streak;
+        this.currentSection = savedState.currentSection;
+        this.timeLeft = 30;
+
+        this.updateUI();
+        this.generateQuestion();
+    }
+
+    saveGameState() {
+        const gameState = {
+            score: this.score,
+            level: this.level,
+            streak: this.streak,
+            currentSection: this.currentSection
+        };
+        localStorage.setItem('mathGameState', JSON.stringify(gameState));
+    }
+
+    bindEvents() {
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.switchSection(e.currentTarget.dataset.section);
+            });
+        });
+
+        // Agregar evento para guardar antes de cerrar la página
+        window.addEventListener('beforeunload', () => {
+            this.saveGameState();
+        });
+    }
+
+    startTimer() {
+        this.timer = setInterval(() => {
+            this.timeLeft--;
+            document.querySelector('.timer').textContent = this.timeLeft;
+            
+            if (this.timeLeft <= 0) {
+                this.handleTimeUp();
+            }
+        }, 1000);
+    }
+
+    handleTimeUp() {
+        clearInterval(this.timer);
+        this.streak = 0;
+        this.updateUI();
+        this.timeLeft = 30;
+        this.startTimer();
+        this.generateQuestion();
+        this.saveGameState();
+    }
+
+    switchSection(section) {
+        this.currentSection = section;
+        document.querySelectorAll('nav a').forEach(link => {
+            link.classList.remove('active');
+        });
+        document.querySelector(`[data-section="${section}"]`).classList.add('active');
+        this.generateQuestion();
+        this.saveGameState();
+    }
+
+    updateUI() {
+        document.querySelector('.points').textContent = this.score;
+        document.querySelector('.level').textContent = this.level;
+        document.querySelector('.streak').textContent = this.streak;
+        
+        const streakIndicator = document.querySelector('.streak-indicator');
+        if (this.streak >= 3) {
+            streakIndicator.style.display = 'flex';
+            streakIndicator.querySelector('.streak-count').textContent = this.streak;
+        } else {
+            streakIndicator.style.display = 'none';
+        }
+    }
+
+    generateQuestion() {
+        let question;
+        const difficulty = Math.min(this.level, 5);
+
+        switch(this.currentSection) {
+            case 'basic':
+                question = this.generateBasicQuestion(difficulty);
+                break;
+            case 'trig':
+                question = this.generateTrigQuestion(difficulty);
+                break;
+            case 'advanced':
+                question = this.generateAdvancedQuestion(difficulty);
+                break;
+        }
+
+        document.querySelector('.operation').innerHTML = question.questionHTML;
+        const optionsContainer = document.querySelector('.options');
+        optionsContainer.innerHTML = '';
+
+        const options = this.generateOptions(question.answer, difficulty);
+        options.forEach(option => {
+            const button = document.createElement('button');
+            button.className = 'option';
+            button.innerHTML = option;
+            button.addEventListener('click', () => this.checkAnswer(option, question.answer));
+            optionsContainer.appendChild(button);
+        });
+    }
+
+    generateBasicQuestion(difficulty) {
+        const operations = ['+', '-', '*', '/'];
+        const numTerms = Math.min(difficulty + 1, 4);
+        let terms = [];
+        let result = 0;
+        let questionText = '';
+
+        for (let i = 0; i < numTerms; i++) {
+            const num = Math.floor(Math.random() * (10 * difficulty)) + 1;
+            const op = operations[Math.floor(Math.random() * operations.length)];
+            
+            terms.push({ num, op });
+            
+            if (i === 0) {
+                result = num;
+                questionText = num.toString();
+            } else {
+                questionText += ` ${op} ${num}`;
+                switch(op) {
+                    case '+': result += num; break;
+                    case '-': result -= num; break;
+                    case '*': result *= num; break;
+                    case '/': result = Math.floor(result / num); break;
+                }
+            }
+        }
+
+        return {
+            questionHTML: questionText + ' = ?',
+            answer: result
+        };
+    }
+
+    generateTrigQuestion(difficulty) {
+        const functions = ['sin', 'cos', 'tan'];
+        const angles = [0, 30, 45, 60, 90, 120, 150, 180];
+        
+        if (difficulty >= 3) {
+            functions.push('sec', 'csc', 'cot');
+        }
+
+        const fn = functions[Math.floor(Math.random() * functions.length)];
+        const angle = angles[Math.floor(Math.random() * angles.length)];
+        let result;
+
+        switch(fn) {
+            case 'sin':
+                result = Math.sin(angle * Math.PI / 180);
+                break;
+            case 'cos':
+                result = Math.cos(angle * Math.PI / 180);
+                break;
+            case 'tan':
+                result = Math.tan(angle * Math.PI / 180);
+                break;
+            case 'sec':
+                result = 1 / Math.cos(angle * Math.PI / 180);
+                break;
+            case 'csc':
+                result = 1 / Math.sin(angle * Math.PI / 180);
+                break;
+            case 'cot':
+                result = 1 / Math.tan(angle * Math.PI / 180);
+                break;
+        }
+
+        return {
+            questionHTML: `${fn}(${angle}°) = ?`,
+            answer: parseFloat(result.toFixed(3))
+        };
+    }
+
+    generateAdvancedQuestion(difficulty) {
+        const types = [
+            'factorización',
+            'ecuación cuadrática',
+            'derivada',
+            'integral',
+            'límite'
+        ];
+        const type = types[Math.floor(Math.random() * Math.min(difficulty, types.length))];
+        let question, answer;
+
+        switch(type) {
+            case 'factorización':
+                const a = Math.floor(Math.random() * 5) + 1;
+                const b = Math.floor(Math.random() * 10) - 5;
+                question = `Factoriza: x² + ${b}x + ${a*a}`;
+                answer = `(x + ${a})(x + ${b-a})`;
+                break;
+            
+            case 'ecuación cuadrática':
+                const p = Math.floor(Math.random() * 10) - 5;
+                const q = Math.floor(Math.random() * 10) - 5;
+                const sum = -(p + q);
+                const product = p * q;
+                question = `Resuelve: x² + ${sum}x + ${product} = 0`;
+                answer = `x = ${p} o x = ${q}`;
+                break;
+            
+            case 'derivada':
+                const coef = Math.floor(Math.random() * 5) + 1;
+                const exp = Math.floor(Math.random() * 3) + 2;
+                question = `Deriva: ${coef}x<sup>${exp}</sup>`;
+                answer = `${coef * exp}x<sup>${exp-1}</sup>`;
+                break;
+            
+            case 'integral':
+                const c = Math.floor(Math.random() * 5) + 1;
+                const e = Math.floor(Math.random() * 3) + 1;
+                question = `∫ ${c}x<sup>${e}</sup> dx`;
+                answer = `${c/(e+1)}x<sup>${e+1}</sup> + C`;
+                break;
+            
+            case 'límite':
+                const num = Math.floor(Math.random() * 5) + 1;
+                question = `lim<sub>x→∞</sub> (${num}x + ${num*2})/${num}x`;
+                answer = "1";
+                break;
+        }
+
+        return {
+            questionHTML: question,
+            answer: answer
+        };
+    }
+
+    generateOptions(correctAnswer, difficulty) {
+        const options = [correctAnswer];
+        const numOptions = Math.min(3 + difficulty, 6);
+        
+        while (options.length < numOptions) {
+            let wrongAnswer;
+            
+            if (typeof correctAnswer === 'number') {
+                const variation = (Math.random() - 0.5) * (10 * difficulty);
+                wrongAnswer = parseFloat((correctAnswer + variation).toFixed(3));
+            } else if (correctAnswer.includes('x')) {
+                // Para expresiones algebraicas
+                const terms = correctAnswer.match(/[-+]?\d*x?(?:\^?\d+)?/g);
+                const modifiedTerms = terms.map(term => {
+                    const coefficient = parseInt(term) || 1;
+                    return term.replace(/\d+/, coefficient + Math.floor(Math.random() * 5) - 2);
+                });
+                wrongAnswer = modifiedTerms.join('');
+            } else {
+                wrongAnswer = correctAnswer + Math.floor(Math.random() * 10) - 5;
+            }
+            
+            if (!options.includes(wrongAnswer)) {
+                options.push(wrongAnswer);
+            }
+        }
+        
+        return this.shuffleArray(options);
+    }
+
+    shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    checkAnswer(selected, correct) {
+        const isCorrect = selected.toString() === correct.toString();
+        const selectedButton = [...document.querySelectorAll('.option')]
+            .find(button => button.innerHTML === selected.toString());
+
+        selectedButton.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+        if (isCorrect) {
+            this.handleCorrectAnswer();
+        } else {
+            this.handleIncorrectAnswer();
+        }
+
+        setTimeout(() => {
+            this.timeLeft = 30;
+            document.querySelector('.timer').textContent = this.timeLeft;
+            this.generateQuestion();
+        }, 1000);
+    }
+
+    handleCorrectAnswer() {
+        this.streak++;
+        const basePoints = 10;
+        const streakBonus = Math.floor(this.streak / 3) * 5;
+        const timeBonus = Math.floor(this.timeLeft / 5);
+        const totalPoints = basePoints + streakBonus + timeBonus;
+        
+        this.score += totalPoints;
+        
+        if (this.score >= this.level * 100) {
+            this.level++;
+            this.showLevelUpMessage();
+        }
+        
+        this.updateUI();
+        this.saveGameState();
+    }
+
+    handleIncorrectAnswer() {
+        this.streak = 0;
+        this.updateUI();
+        this.saveGameState();
+    }
+
+    showLevelUpMessage() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h2>¡Nivel Completado!</h2>
+            <p>Has alcanzado el nivel ${this.level}</p>
+            <p>Las preguntas serán más desafiantes ahora.</p>
+            <button onclick="this.parentElement.parentElement.remove()">Continuar</button>
+        </div>
+        <style>
+            /* Estilos para el modal y la animación de fondo */
+            .modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                backdrop-filter: blur(5px);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                animation: fadeIn 0.3s ease-out;
+            }
+            /* Contenido del modal con diseño de cristal (glassmorphism) */
+            .modal-content {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                padding: 2.5rem;
+                box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                text-align: center;
+                max-width: 400px;
+                width: 90%;
+                transform: scale(0.9);
+                animation: scaleIn 0.5s ease-out forwards;
+            }
+            /* Título con efecto de gradiente */
+            .modal-content h2 {
+                font-size: 2.5rem;
+                margin-bottom: 1.5rem;
+                color: transparent;
+                background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+                background-clip: text;
+                -webkit-background-clip: text;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+            }
+            /* Texto del modal */
+            .modal-content p {
+                font-size: 1.2rem;
+                color: #ffffff;
+                margin-bottom: 1rem;
+                line-height: 1.5;
+            }
+            /* Número del nivel con efecto especial */
+            .modal-content p:first-of-type {
+                font-size: 1.8rem;
+                font-weight: 600;
+                color: #FFD700;
+                text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+                margin: 1.5rem 0;
+            }
+            /* Botón con efecto hover */
+            .modal-content button {
+                background: linear-gradient(45deg, #4ECDC4, #556270);
+                border: none;
+                padding: 1rem 2.5rem;
+                font-size: 1.1rem;
+                color: white;
+                border-radius: 50px;
+                cursor: pointer;
+                margin-top: 1.5rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+            }
+            .modal-content button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+                background: linear-gradient(45deg, #556270, #4ECDC4);
+            }
+            .modal-content button:active {
+                transform: translateY(1px);
+            }
+            /* Animaciones */
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+            @keyframes scaleIn {
+                from {
+                    transform: scale(0.9);
+                    opacity: 0;
+                }
+                to {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
+        </style>
+    `;
+    document.body.appendChild(modal);
+    modal.style.display = 'flex';
+}
+
+    resetGame() {
+        localStorage.removeItem('mathGameState');
+        this.score = 0;
+        this.level = 1;
+        this.streak = 0;
+        this.currentSection = 'basic';
+        this.timeLeft = 30;
+        this.updateUI();
+        this.generateQuestion();
+    }
+}
+
+// Iniciar el juego cuando el documento esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    window.mathGame = new EnhancedMathGame();
+});  
+</script>
+    
+</body>
+</html>
