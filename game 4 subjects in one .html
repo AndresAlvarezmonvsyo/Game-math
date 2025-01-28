@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Genio de la Ciencia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+      * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+       .header {
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(145deg, #ffffff, #f1f1f1);
+    border-radius: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+}
+
+.header:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.header p {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #888;
+}
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #fff;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .game-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 70px;
+            min-height: calc(100vh - 250px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .question-container {
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .options-container {
+            display: grid;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .option-btn {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-btn:hover {
+            background: #f0f2f5;
+        }
+
+        .timer {
+            font-size: 24px;
+            text-align: center;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .nav-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-item.active {
+            color: #007bff;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mode-btn.active {
+            background: #0056b3;
+        }
+
+        .streak-counter {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .level-badge {
+            background: #9C27B0;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    
+    </style>
+</head>
+<body>
+      
+
+
+   <!-- Contenedor principal donde se hace clic para abrir el modal -->
+<div class="container" onclick="mostrarModal()">
+    <div class="header">
+        <h1><i class="fas fa-brain"></i> Genio de la Ciencia</h1>
+        <p><i class="fas fa-cogs"></i> Powered By Andrés Álvarez | <span class="version"><i class="fas fa-info-circle"></i> Versión 1.0.2</span></p>
+    </div>
+</div>
+
+
+    <!-- Modal con la política de privacidad -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal()">&times;</span>
+            <h2>Política de Privacidad - Genio de la Ciencia</h2>
+            <p><strong>Versión 1.0.2</strong></p>
+            <p><strong>Última actualización:</strong> 27 de enero de 2025</p>
+            <h3>Introducción</h3>
+            <p>Esta política de privacidad describe cómo Genio de la Ciencia ("nosotros", "nuestra", "el juego") recopila, usa y almacena la información durante su uso. Al utilizar Genio de la Ciencia, usted acepta las prácticas descritas en esta política.</p>
+
+            <h3>Información que Recopilamos</h3>
+            <ul>
+                <li>Puntuación del juego</li>
+                <li>Nivel alcanzado</li>
+                <li>Racha de respuestas correctas</li>
+                <li>Estadísticas de juego básicas</li>
+            </ul>
+
+            <h3>Almacenamiento de Datos</h3>
+            <ul>
+                <li>Todos los datos se almacenan exclusivamente en el almacenamiento local (localStorage) de su navegador</li>
+                <li>No se transmite ninguna información a servidores externos</li>
+                <li>Los datos permanecen en su dispositivo hasta que usted:
+                    <ul>
+                        <li>Borre el almacenamiento local del navegador</li>
+                        <li>Borre los datos de navegación</li>
+                        <li>Desinstale el navegador</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>Uso de Datos</h3>
+            <p>Los datos recopilados se utilizan únicamente para:</p>
+            <ul>
+                <li>Mantener su progreso en el juego</li>
+                <li>Mostrar su puntuación actual</li>
+                <li>Gestionar su nivel y rachas</li>
+                <li>Mejorar su experiencia de juego</li>
+            </ul>
+
+            <h3>Cookies y Tecnologías Similares</h3>
+            <ul>
+                <li>No utilizamos cookies</li>
+                <li>Solo utilizamos localStorage para almacenar sus datos de progreso</li>
+                <li>No se utilizan tecnologías de seguimiento</li>
+            </ul>
+
+            <h3>Seguridad</h3>
+            <ul>
+                <li>Al utilizar almacenamiento local, sus datos permanecen en su dispositivo</li>
+                <li>No compartimos ni transmitimos ninguna información a terceros</li>
+                <li>No recopilamos información personal identificable</li>
+            </ul>
+
+            <h3>Bibliotecas de Terceros</h3>
+            <ul>
+                <li>jQuery 3.6.0: Para manipulación del DOM y funcionalidad</li>
+                <li>Font Awesome 6.0.0: Para iconografía</li>
+            </ul>
+
+            <h3>Derechos del Usuario</h3>
+            <ul>
+                <li>Borrar sus datos de progreso limpiando el almacenamiento local de su navegador</li>
+                <li>Jugar sin almacenamiento de datos desactivando el almacenamiento local en su navegador</li>
+                <li>Acceder a sus datos almacenados a través de las herramientas de desarrollo del navegador</li>
+            </ul>
+
+            <h3>Cambios en la Política de Privacidad</h3>
+            <p>Nos reservamos el derecho de actualizar esta política de privacidad en cualquier momento. Los cambios entrarán en vigor inmediatamente después de su publicación en el juego.</p>
+
+            <h3>Menores</h3>
+            <p>Este juego educativo es apto para menores. No recopilamos información personal de ningún usuario, independientemente de su edad.</p>
+
+            <h3>Contacto</h3>
+            <p>Para cualquier pregunta sobre esta política de privacidad, puede contactar a:</p>
+            <p>Andrés Álvarez</p>
+            <p>Desarrollador de Genio de la Ciencia</p>
+
+            <h3>Jurisdicción</h3>
+            <p>Esta política de privacidad se rige por las leyes aplicables de protección de datos y privacidad.</p>
+        </div>
+    </div>
+<style>
+     /* Estilos para el modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro con mayor opacidad */
+    transition: background-color 0.3s ease; /* Transición para suavizar el efecto */
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 10px; /* Bordes redondeados */
+    width: 90%;
+    max-width: 600px;
+    max-height: 80%;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    transform: translateY(-10px);
+    transition: transform 0.3s ease-in-out; /* Efecto de entrada suave */
+}
+
+.modal-content.show {
+    transform: translateY(0); /* Anima la entrada del modal */
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 32px;
+    font-weight: bold;
+    transition: color 0.3s ease; /* Transición suave en el hover */
+}
+
+.close:hover,
+.close:focus {
+    color: #ff4d4d; /* Color de cierre más destacado */
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Estilos para la interfaz principal */
+.container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+}
+
+
+    </style>
+    <!-- JavaScript para abrir y cerrar el modal -->
+    <script>
+        // Función para mostrar el modal
+        function mostrarModal() {
+            document.getElementById('modal').style.display = "block";
+        }
+
+        // Función para cerrar el modal
+        function cerrarModal() {
+            document.getElementById('modal').style.display = "none";
+        }
+
+        // Cerrar el modal si se hace clic fuera del contenido del modal
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('modal')) {
+                document.getElementById('modal').style.display = "none";
+            }
+        }
+  </script>
+        
+        <div class="game-section" id="gameSection">
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="learning">
+                    <i class="fas fa-book-reader"></i> Modo Aprendizaje
+                </button>
+                <button class="mode-btn" data-mode="competition">
+                    <i class="fas fa-trophy"></i> Modo Competencia
+                </button>
+            </div>
+            
+            <div class="game-info">
+                <div class="info-item level-badge" id="levelContainer">
+                    <i class="fas fa-star"></i> Nivel <span id="levelValue">1</span>
+                </div>
+                <div class="info-item streak-counter">
+                    <i class="fas fa-fire"></i> Racha: <span id="streakValue">0</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-coins"></i> Puntos: <span id="scoreValue">0</span>
+                </div>
+            </div>
+            
+            <div class="timer" id="timer">
+                <i class="fas fa-hourglass-half"></i> <span>00:00</span>
+            </div>
+            
+            <div class="question-container">
+                <h3 id="questionText"><i class="fas fa-question-circle"></i> Selecciona un modo de juego para comenzar</h3>
+                <div class="options-container" id="optionsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-bottom">
+    <a href="#" class="nav-item active" data-section="math">
+        <i class="fas fa-square-root-alt"></i>
+        <span>Matemáticas</span>
+    </a>
+    <a href="#" class="nav-item" data-section="algebra">
+        <i class="fas fa-calculator"></i>
+        <span>Álgebra</span>
+    </a>
+    <a href="#" class="nav-item" data-section="chemistry">
+        <i class="fas fa-flask"></i>
+        <span>Química</span>
+    </a>
+    <a href="#" class="nav-item" data-section="physics">
+        <i class="fas fa-atom"></i>
+        <span>Física</span>
+    </a>
+</nav>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+   // Generador de preguntas matemáticas
+const mathGenerator = {
+    basic: () => {
+        const operations = [
+            {op: '+', fn: (a,b) => a + b, name: 'suma'},
+            {op: '-', fn: (a,b) => a - b, name: 'resta'},
+            {op: '*', fn: (a,b) => a * b, name: 'multiplicación'},
+            {op: '/', fn: (a,b) => a / b, name: 'división'}
+        ];
+        
+        const generateNumbers = (operation) => {
+            if (operation.op === '/') {
+                const b = Math.floor(Math.random() * 12) + 1;
+                const a = b * (Math.floor(Math.random() * 10) + 1);
+                return [a, b];
+            }
+            return [
+                Math.floor(Math.random() * 100) + 1,
+                Math.floor(Math.random() * 50) + 1
+            ];
+        };
+
+        const operation = operations[Math.floor(Math.random() * operations.length)];
+        const [num1, num2] = generateNumbers(operation);
+        const correct = operation.fn(num1, num2);
+        
+        const generateWrongAnswers = (correct, operation) => {
+            const wrong = new Set();
+            while (wrong.size < 3) {
+                let wrongAnswer;
+                switch (Math.floor(Math.random() * 4)) {
+                    case 0:
+                        wrongAnswer = correct + (Math.random() < 0.5 ? 1 : -1);
+                        break;
+                    case 1:
+                        wrongAnswer = operation.fn(num2, num1);
+                        break;
+                    case 2:
+                        wrongAnswer = operations[Math.floor(Math.random() * operations.length)].fn(num1, num2);
+                        break;
+                    case 3:
+                        wrongAnswer = correct * (Math.random() < 0.5 ? 10 : 0.1);
+                        break;
+                }
+                if (wrongAnswer !== correct) {
+                    wrong.add(Math.round(wrongAnswer * 100) / 100);
+                }
+            }
+            return Array.from(wrong);
+        };
+
+        const wrongAnswers = generateWrongAnswers(correct, operation);
+        const options = [correct, ...wrongAnswers].sort(() => Math.random() - 0.5);
+
+        return {
+            question: `¿Cuánto es ${num1} ${operation.op} ${num2}?`,
+           options: options, // No conviertas a cadenas si no es necesario
+           correct: options.indexOf(correct) // Mantén el tipo de datos consistente
+ 
+        };
+    }
+};
+
+// Generador de preguntas de álgebra
+const algebraGenerator = {
+    // Genera ecuaciones lineales más complejas
+    generateLinearEquation: () => {
+        const generateTerm = () => {
+            const coefficient = Math.floor(Math.random() * 10) + 1;
+            return {
+                coefficient,
+                text: coefficient === 1 ? 'x' : `${coefficient}x`
+            };
+        };
+
+        const generateConstant = () => Math.floor(Math.random() * 20) - 10;
+
+        const leftTerm1 = generateTerm();
+        const leftTerm2 = generateConstant();
+        const rightTerm1 = generateTerm();
+        const rightTerm2 = generateConstant();
+
+        // Calcular la solución
+        const solution = (rightTerm2 - leftTerm2) / (leftTerm1.coefficient - rightTerm1.coefficient);
+
+        return {
+            equation: `${leftTerm1.text} + ${leftTerm2 >= 0 ? '+' : ''}${leftTerm2} = ${rightTerm1.text} + ${rightTerm2 >= 0 ? '+' : ''}${rightTerm2}`,
+            solution: Math.round(solution * 100) / 100
+        };
+    },
+
+    // Genera expresiones cuadráticas
+    generateQuadratic: () => {
+        const a = Math.floor(Math.random() * 5) + 1;
+        const b = Math.floor(Math.random() * 10) - 5;
+        const c = Math.floor(Math.random() * 10) - 5;
+
+        const formatTerm = (coef, power) => {
+            if (power === 0) return coef.toString();
+            if (power === 1) return coef === 1 ? 'x' : `${coef}x`;
+            return coef === 1 ? `x²` : `${coef}x²`;
+        };
+
+        const expression = `${formatTerm(a, 2)} ${b >= 0 ? '+' : ''}${formatTerm(b, 1)} ${c >= 0 ? '+' : ''}${formatTerm(c, 0)}`;
+
+        // Calcular un punto en la parábola
+        const x = Math.floor(Math.random() * 5);
+        const y = a * x * x + b * x + c;
+
+        return { expression, x, y };
+    },
+
+    basic: () => {
+        const questionTypes = [
+            // Tipo 1: Resolver ecuación lineal
+            () => {
+                const eq = algebraGenerator.generateLinearEquation();
+                const solution = eq.solution;
+                const wrongAnswers = [
+                    solution + 2,
+                    solution - 2,
+                    -solution
+                ].map(n => Math.round(n * 100) / 100);
+
+                return {
+                    question: `Resuelve la ecuación: ${eq.equation}`,
+                    options: [solution, ...wrongAnswers].sort(() => Math.random() - 0.5),
+                    correct: 0
+                };
+            },
+            // Tipo 2: Evaluar expresión cuadrática
+            () => {
+                const quad = algebraGenerator.generateQuadratic();
+                const correct = quad.y;
+                const wrongAnswers = [
+                    correct + 5,
+                    correct - 5,
+                    -correct
+                ].map(n => Math.round(n * 100) / 100);
+
+                return {
+                    question: `Si f(x) = ${quad.expression}, ¿cuál es el valor de f(${quad.x})?`,
+                    options: [correct, ...wrongAnswers].sort(() => Math.random() - 0.5),
+                    correct: 0
+                };
+            }
+        ];
+
+        return questionTypes[Math.floor(Math.random() * questionTypes.length)]();
+    }
+};
+
+// Generador de preguntas de química
+const chemistryGenerator = {
+    elements: {
+    H: { name: 'Hidrógeno', valence: 1 },
+    He: { name: 'Helio', valence: 2 },
+    Li: { name: 'Litio', valence: 1 },
+    Be: { name: 'Berilio', valence: 2 },
+    B: { name: 'Boro', valence: 3 },
+    C: { name: 'Carbono', valence: 4 },
+    N: { name: 'Nitrógeno', valence: 3 },
+    O: { name: 'Oxígeno', valence: 2 },
+    F: { name: 'Flúor', valence: 1 },
+    Ne: { name: 'Neón', valence: 0 },
+
+    Na: { name: 'Sodio', valence: 1 },
+    Mg: { name: 'Magnesio', valence: 2 },
+    Al: { name: 'Aluminio', valence: 3 },
+    Si: { name: 'Silicio', valence: 4 },
+    P: { name: 'Fósforo', valence: 3 },
+    S: { name: 'Azufre', valence: 2 },
+    Cl: { name: 'Cloro', valence: 1 },
+    Ar: { name: 'Argón', valence: 0 },
+    K: { name: 'Potasio', valence: 1 },
+    Ca: { name: 'Calcio', valence: 2 },
+
+    Sc: { name: 'Escandio', valence: 3 },
+    Ti: { name: 'Titanio', valence: 4 },
+    V: { name: 'Vanadio', valence: 5 },
+    Cr: { name: 'Cromo', valence: 6 },
+    Mn: { name: 'Manganeso', valence: 7 },
+    Fe: { name: 'Hierro', valence: 2 },
+    Co: { name: 'Cobalto', valence: 2 },
+    Ni: { name: 'Níquel', valence: 2 },
+    Cu: { name: 'Cobre', valence: 1 },
+    Zn: { name: 'Zinc', valence: 2 },
+
+    Ga: { name: 'Galio', valence: 3 },
+    Ge: { name: 'Germanio', valence: 4 },
+    As: { name: 'Arsénico', valence: 3 },
+    Se: { name: 'Selenio', valence: 2 },
+    Br: { name: 'Bromo', valence: 1 },
+    Kr: { name: 'Kriptón', valence: 0 },
+    Rb: { name: 'Rubidio', valence: 1 },
+    Sr: { name: 'Estroncio', valence: 2 },
+    Y: { name: 'Itrio', valence: 3 },
+    Zr: { name: 'Circonio', valence: 4 },
+
+    Nb: { name: 'Niobio', valence: 5 },
+    Mo: { name: 'Molibdeno', valence: 6 },
+    Tc: { name: 'Tecnecio', valence: 7 },
+    Ru: { name: 'Rutenio', valence: 6 },
+    Rh: { name: 'Rodio', valence: 3 },
+    Pd: { name: 'Paladio', valence: 2 },
+    Ag: { name: 'Plata', valence: 1 },
+    Cd: { name: 'Cadmio', valence: 2 },
+    In: { name: 'Indio', valence: 3 },
+    Sn: { name: 'Estaño', valence: 2 },
+
+    Sb: { name: 'Antimonio', valence: 3 },
+    Te: { name: 'Telurio', valence: 2 },
+    I: { name: 'Yodo', valence: 1 },
+    Xe: { name: 'Xenón', valence: 0 },
+    Cs: { name: 'Cesio', valence: 1 },
+    Ba: { name: 'Bario', valence: 2 },
+    La: { name: 'Lantano', valence: 3 },
+    Ce: { name: 'Cerio', valence: 3 },
+    Pr: { name: 'Praseodimio', valence: 3 },
+    Nd: { name: 'Neodimio', valence: 3 },
+
+    Pm: { name: 'Prometio', valence: 3 },
+    Sm: { name: 'Samario', valence: 3 },
+    Eu: { name: 'Europio', valence: 3 },
+    Gd: { name: 'Gadolinio', valence: 3 },
+    Tb: { name: 'Terbio', valence: 3 },
+    Dy: { name: 'Disprosio', valence: 3 },
+    Ho: { name: 'Holmio', valence: 3 },
+    Er: { name: 'Erbio', valence: 3 },
+    Tm: { name: 'Tulio', valence: 3 },
+    Yb: { name: 'Iterbio', valence: 3 },
+
+    Lu: { name: 'Lutecio', valence: 3 },
+    Hf: { name: 'Hafnio', valence: 4 },
+    Ta: { name: 'Tantalio', valence: 5 },
+    W: { name: 'Wolframio', valence: 6 },
+    Re: { name: 'Renio', valence: 7 },
+    Os: { name: 'Osmio', valence: 8 },
+    Ir: { name: 'Iridio', valence: 4 },
+    Pt: { name: 'Platino', valence: 2 },
+    Au: { name: 'Oro', valence: 1 },
+    Hg: { name: 'Mercurio', valence: 2 },
+
+    Tl: { name: 'Talio', valence: 3 },
+    Pb: { name: 'Plomo', valence: 2 },
+    Bi: { name: 'Bismuto', valence: 3 },
+    Po: { name: 'Polonio', valence: 2 },
+    At: { name: 'Astatino', valence: 1 },
+    Rn: { name: 'Radón', valence: 0 },
+    Fr: { name: 'Francio', valence: 1 },
+    Ra: { name: 'Radio', valence: 2 },
+    Ac: { name: 'Actinio', valence: 3 },
+    Th: { name: 'Torio', valence: 4 },
+
+    Pa: { name: 'Protactinio', valence: 5 },
+    U: { name: 'Uranio', valence: 6 },
+    Np: { name: 'Neptunio', valence: 7 },
+    Pu: { name: 'Plutonio', valence: 8 },
+    Am: { name: 'Americio', valence: 3 },
+    Cm: { name: 'Curio', valence: 3 },
+    Bk: { name: 'Berkelio', valence: 3 },
+    Cf: { name: 'Californio', valence: 3 },
+    Es: { name: 'Einsteinio', valence: 3 },
+    Fm: { name: 'Fermio', valence: 3 },
+
+    Md: { name: 'Mendelevio', valence: 3 },
+    No: { name: 'Nobelio', valence: 3 },
+    Lr: { name: 'Laurencio', valence: 3 },
+    Rf: { name: 'Rutherfordio', valence: 4 },
+    Db: { name: 'Dubnio', valence: 5 },
+    Sg: { name: 'Seaborgio', valence: 6 },
+    Bh: { name: 'Bohrio', valence: 7 },
+    Hs: { name: 'Hassio', valence: 8 },
+    Mt: { name: 'Meitnerio', valence: 9 },
+    Ds: { name: 'Darmstadio', valence: 10 },
+
+    Rg: { name: 'Roentgenio', valence: 11 },
+    Cn: { name: 'Copernicio', valence: 12 },
+    Nh: { name: 'Nihonio', valence: 13 },
+    Fl: { name: 'Flerovio', valence: 14 },
+    Mc: { name: 'Moscovio', valence: 15 },
+    Lv: { name: 'Livermorio', valence: 16 },
+    Ts: { name: 'Teneso', valence: 17 },
+    Og: { name: 'Oganessón', valence: 18 }
+}, 
+
+
+    generateMolecule: () => {
+        const elementEntries = Object.entries(chemistryGenerator.elements);
+        const element1 = elementEntries[Math.floor(Math.random() * elementEntries.length)];
+        const element2 = elementEntries[Math.floor(Math.random() * elementEntries.length)];
+
+        const gcd = (a, b) => b ? gcd(b, a % b) : a;
+
+        const valence1 = element1[1].valence;
+        const valence2 = element2[1].valence;
+        const subscript1 = valence2 / gcd(valence1, valence2);
+        const subscript2 = valence1 / gcd(valence1, valence2);
+
+        return {
+            formula: `${element1[0]}${subscript1 > 1 ? subscript1 : ''}${element2[0]}${subscript2 > 1 ? subscript2 : ''}`,
+            elements: [element1, element2]
+        };
+    },
+
+    basic: () => {
+        const molecule = chemistryGenerator.generateMolecule();
+        const correctFormula = molecule.formula;
+        return {
+            question: `¿Cuál es la fórmula del compuesto entre ${molecule.elements[0][1].name} y ${molecule.elements[1][1].name}?`,
+            options: [
+                correctFormula,
+                `${molecule.elements[1][0]}${molecule.elements[0][0]}`,
+                `${molecule.elements[0][0]}2${molecule.elements[1][0]}2`,
+                `${molecule.elements[0][0]}${molecule.elements[1][0]}`
+            ],
+            correct: 0
+        };
+    }
+};
+
+// Generador de preguntas de física
+const physicsGenerator = {
+    basic: () => {
+        const generators = [
+            () => {
+                const velocity = Math.floor(Math.random() * 30) + 10;
+                const time = Math.floor(Math.random() * 10) + 1;
+                const distance = velocity * time;
+
+                return {
+                    question: `Un objeto se mueve a ${velocity} m/s durante ${time} segundos. ¿Qué distancia recorre?`,
+                    options: [
+                        `${distance} m`,
+                        `${distance + 10} m`,
+                        `${distance - 10} m`,
+                        `${distance * 2} m`
+                    ],
+                    correct: 0
+                };
+            }
+        ];
+
+        return generators[Math.floor(Math.random() * generators.length)]();
+    }
+};
+
+// Sistema de generación de preguntas
+const questionGenerators = {
+    math: {
+        generate: () => mathGenerator.basic()
+    },
+    algebra: {
+        generate: () => algebraGenerator.basic()
+    },
+    chemistry: {
+        generate: () => chemistryGenerator.basic()
+    },
+    physics: {
+        generate: () => physicsGenerator.basic()
+    }
+};
+
+// Variables del juego
+let currentSection = 'math';
+let currentMode = 'learning';
+let score = 0;
+let streak = 0;
+let level = 1;
+let timer = null;
+let timeLeft = 0;
+
+// Cargar datos guardados
+function loadGameData() {
+    const savedData = JSON.parse(localStorage.getItem('scienceGenius_data') || '{}');
+    score = savedData.score || 0;
+    streak = savedData.streak || 0;
+    level = savedData.level || 1;
+    updateDisplays();
+}
+
+// Guardar datos
+function saveGameData() {
+    const gameData = {
+        score,
+        streak,
+        level
+    };
+    localStorage.setItem('scienceGenius_data', JSON.stringify(gameData));
+}
+
+// Actualizar displays
+function updateDisplays() {
+    $('#scoreValue').text(score);
+    $('#streakValue').text(streak);
+    $('#levelValue').text(level);
+}
+
+// Mostrar/ocultar elementos según el modo
+function updateGameMode() {
+    if (currentMode === 'competition') {
+        $('#timer').show();
+        $('.game-info').show();
+    } else {
+        $('#timer').hide();
+        $('.game-info').hide();
+    }
+}
+
+// Mostrar pregunta aleatoria
+function showRandomQuestion() {
+    const generator = questionGenerators[currentSection];
+    if (!generator) {
+        console.error('Sección no válida:', currentSection);
+        return;
+    }
+
+    const question = generator.generate();
+
+    $('#questionText').html(`<i class="fas fa-question-circle"></i> ${question.question}`);
+    
+    const optionsHtml = question.options.map((option, index) => `
+        <button class="option-btn" data-index="${index}">
+            <i class="fas fa-check-circle"></i>
+            ${option}
+        </button>
+    `).join('');
+    
+    $('#optionsContainer').html(optionsHtml);
+
+    // Eliminar listeners anteriores
+    $('#optionsContainer').off('click', '.option-btn');
+    
+    // Agregar nuevos listeners
+    $('#optionsContainer').on('click', '.option-btn', function() {
+        const selectedIndex = $(this).data('index');
+        checkAnswer(selectedIndex, question.correct);
+    });
+}
+
+// Verificar respuesta
+function checkAnswer(selected, correct) {
+    if (selected === correct) {
+        if (currentMode === 'competition') {
+            score += 15;
+            streak++;
+            if (streak % 5 === 0) {
+                level++;
+                timeLeft += 15; // Bonus de tiempo por subir de nivel
+            }
+            timeLeft += 10; // Bonus de tiempo por respuesta correcta
+        }
+    } else {
+        if (currentMode === 'competition') {
+            streak = 0;
+            timeLeft = Math.max(0, timeLeft - 5); // Penalización de tiempo
+        }
+    }
+
+    updateDisplays();
+    saveGameData();
+    showRandomQuestion();
+}
+
+// Formatear tiempo
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Iniciar temporizador
+function startTimer() {
+    timeLeft = 60;
+    clearInterval(timer);
+    
+    timer = setInterval(() => {
+        timeLeft--;
+        $('#timer span').text(formatTime(timeLeft));
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            endGame();
+        }
+    }, 1000);
+}
+
+// Terminar juego
+function endGame() {
+    $('#questionText').html(`<i class="fas fa-trophy"></i> ¡Juego terminado!<br>Puntuación final: ${score}<br>Nivel alcanzado: ${level}<br>Mejor racha: ${streak}`);
+    $('#optionsContainer').empty();
+}
+
+// Inicialización cuando el documento está listo
+$(document).ready(function() {
+    loadGameData();
+    updateGameMode();
+
+    $('.nav-item').click(function(e) {
+        e.preventDefault();
+        $('.nav-item').removeClass('active');
+        $(this).addClass('active');
+        currentSection = $(this).data('section');
+        showRandomQuestion();
+    });
+
+    $('.mode-btn').click(function() {
+        $('.mode-btn').removeClass('active');
+        $(this).addClass('active');
+        currentMode = $(this).data('mode');
+        
+        if (currentMode === 'competition') {
+            startTimer();
+        } else {
+            clearInterval(timer);
+        }
+        
+        updateGameMode();
+        showRandomQuestion();
+    });
+
+    showRandomQuestion();
+});
+    </script>
+</body>
+</html>
