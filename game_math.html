@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Juego Matemático</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+ <style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    padding-bottom: 60px;
+}
+
+.header {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-bottom: 3px solid #2a5298;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.header p {
+    font-size: 1.1rem;
+    opacity: 0.85;
+}
+
+.header i {
+    margin: 0 0.5rem;
+    font-size: 1.5rem;
+}
+
+.game-status-block {
+    background: #ffffff;
+    padding: 1.5rem;
+    margin: 1.5rem auto;
+    max-width: 850px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border: 2px solid #2a5298;
+}
+
+.difficulty-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #2a5298;
+    margin-bottom: 1rem;
+}
+
+.difficulty-grid {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.difficulty-btn {
+    width: 140px;
+    padding: 0.8rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background-color: #ffffff;
+    color: #2a5298;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.difficulty-btn.active {
+    background-color: #2a5298;
+    color: white;
+}
+
+.difficulty-btn:hover {
+    background-color: #f0f2f5;
+    color: #2a5298;
+    transform: scale(1.05);
+}
+
+.stats-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2rem;
+} 
+
+.stat-item {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stat-item i {
+    font-size: 1.5rem;
+    color: #2a5298;
+}
+
+.stat-item span {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.question-container {
+    padding: 2rem;
+    max-width: 850px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.options {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    margin-top: 1rem;
+}
+
+.option {
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.option:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.correct {
+    background-color: #4CAF50 !important;
+    color: white;
+}
+
+.incorrect {
+    background-color: #f44336 !important;
+    color: white;
+}
+
+.nav-bottom {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #ffffff;
+    padding: 0.8rem;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    border-top: 3px solid #2a5298;
+}
+
+.nav-item {
+    color: #333;
+    text-decoration: none;
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.nav-item i {
+    display: block;
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.nav-item.active {
+    color: #2a5298;
+    background: #f0f2f5;
+}
+
+.timer {
+    font-size: 1.2rem;
+    color: #2a5298;
+    margin-bottom: 1rem;
+}
+
+/* Media queries */
+@media (min-width: 768px) {
+    .header h1 {
+        font-size: 2.5rem;
+    }
+    
+    .difficulty-btn {
+        width: 160px;
+        margin: 0 0.5rem;
+    }
+    
+    .stat-item {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header h1 {
+        font-size: 1.8rem;
+    }
+
+    .difficulty-btn {
+        width: 100px;
+        font-size: 0.9rem;
+        padding: 0.6rem 0.4rem;
+        margin: 0 0.25rem;
+    }
+
+    .stat-item {
+        padding: 0.8rem;
+    }
+
+    .stat-item i {
+        font-size: 1.2rem;
+    }
+
+    .stat-item span {
+        font-size: 0.9rem;
+    }
+
+    .nav-item span {
+        font-size: 0.8rem;
+    }
+}   
+ </style>
+</head>
+<body>
+  <header class="header" id="openModalBtn">
+    <div class="header-content">
+        <h1><i class="fas fa-square-root-alt"></i> Juego Matemático <i class="fas fa-calculator"></i></h1>
+        <p><i class="fa fa-rocket"></i> Powered by Andres Alvarez</p>
+        <p><i class="fas fa-code-branch"></i> Versión 1.0.3</p>
+        <p><i class="fas fa-gamepad"></i><span id="userNameHeader">, GRACIAS POR JUGAR</span></p>
+    </div>
+</header>
+
+<!-- Modal -->
+<div class="modal-body">
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn"><i class="fas fa-times-circle"></i></span>
+        <header class="modal-header">
+            <p><i class="fas fa-gamepad"></i>  <span id="userNameModal">, GRACIAS POR JUGAR</span></p>
+            <p><i class="fa fa-rocket"></i> Powered by Andres Alvarez</p>
+            <p><i class="fas fa-code-branch"></i> Versión 1.0.3</p>
+        </header>
+        <!-- Contenido del modal -->
+       <div class="section">
+                <h2><i class="fas fa-cogs"></i> ASPECTOS FUNCIONALES Y EDUCATIVOS DEL JUEGO:</h2>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Herramienta educativa interactiva para ciencias y matemáticas</li>
+                    <li><i class="fas fa-play-circle"></i> Enfoque en aprendizaje a través de la práctica activa</li>
+                    <li><i class="fas fa-gamepad"></i> Sistema de gamificación para mantener el interés</li>
+                    <li><i class="fas fa-lightbulb"></i> Desarrollo de habilidades de resolución rápida de problemas</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-layer-group"></i> Estructura del Juego:</h2>
+                <ul>
+                    <li><i class="fas fa-chalkboard"></i> 5 materias principales: Física, Estadística, Ingeniería, Economía y Computación</li>
+                    <li><i class="fas fa-cogs"></i> 3 niveles de dificultad progresivos</li>
+                    <li><i class="fas fa-trophy"></i> Sistema de puntuación basado en tiempo y precisión</li>
+                    <li><i class="fas fa-thumbs-up"></i> Retroalimentación inmediata de respuestas</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-book-open"></i> Contenido Educativo:</h2>
+                <ul>
+                    <li><strong><i class="fas fa-flask"></i> Física:</strong> Problemas de movimiento y velocidad, Cálculos de energía cinética, Fuerzas y aceleración</li>
+                    <li><strong><i class="fas fa-chart-bar"></i> Estadística:</strong> Cálculos de media y mediana, Desviación estándar, Análisis de conjuntos de datos</li>
+                    <li><strong><i class="fas fa-cogs"></i> Ingeniería:</strong> Circuitos en serie y paralelo, Capacitores y energía almacenada, Frecuencias de resonancia</li>
+                    <li><strong><i class="fas fa-wallet"></i> Economía:</strong> Ingresos y costos, PIB y análisis económicos, Cálculos financieros básicos</li>
+                    <li><strong><i class="fas fa-laptop-code"></i> Computación:</strong> Conversiones binarias, Direccionamiento IP, Conceptos fundamentales</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-graduation-cap"></i> Beneficios Pedagógicos:</h2>
+                <ul>
+                    <li><i class="fas fa-users"></i> Aprendizaje activo y participativo</li>
+                    <li><i class="fas fa-clock"></i> Desarrollo de velocidad de cálculo mental</li>
+                    <li><i class="fas fa-book-reader"></i> Mejora en la comprensión de conceptos</li>
+                    <li><i class="fas fa-file-alt"></i> Preparación para exámenes</li>
+                    <li><i class="fas fa-search"></i> Identificación de áreas de mejora</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-shield-alt"></i> POLÍTICA DE SEGURIDAD:</h2>
+                <ul>
+                    <li><strong><i class="fas fa-user-shield"></i> 1. Compromiso del Desarrollador:</strong> "Como desarrollador del Juego Matemático, me comprometo a:</li>
+                    <ul>
+                        <li><i class="fas fa-lock"></i> Protección de Datos: No recolectar información personal sensible, Mantener la privacidad de los datos de progreso</li>
+                        <li><i class="fas fa-sync-alt"></i> Mantenimiento y Actualizaciones: Realizar actualizaciones periódicas de seguridad, Corregir vulnerabilidades identificadas</li>
+                    </ul>
+                    <li><strong><i class="fas fa-clipboard-list"></i> 2. Responsabilidades:</strong></li>
+                    <ul>
+                        <li><i class="fas fa-cogs"></i> Del Desarrollador: Mantener la integridad del sistema, Proporcionar soporte técnico básico</li>
+                        <li><i class="fas fa-user"></i> Del Usuario: Usar la aplicación de manera responsable, Verificar las respuestas para uso académico</li>
+                    </ul>
+                    <li><strong><i class="fas fa-exclamation-triangle"></i> 3. Limitaciones:</strong> El desarrollador no garantiza:</li>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Precisión absoluta de todos los problemas</li>
+                        <li><i class="fas fa-plug"></i> Disponibilidad ininterrumpida del servicio</li>
+                    </ul>
+                    <li><strong><i class="fas fa-user-lock"></i> 4. Privacidad:</strong> Datos Almacenados:</li>
+                    <ul>
+                        <li><i class="fas fa-database"></i> Solo información esencial de progreso</li>
+                    </ul>
+                    <li><strong><i class="fas fa-shield-check"></i> 5. Actualizaciones de Seguridad:</strong></li>
+                    <ul>
+                        <li><i class="fas fa-sync"></i> Compromiso de actualización regular</li>
+                    </ul>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Estilo CSS -->
+<style>
+    .header {
+        background-color: #4CAF50;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s ease;
+        font-size: 18px;
+    }
+
+    .header:hover {
+        background-color: #45a049;
+        transform: scale(1.05);
+    }
+
+    .header-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 25px;
+        width: 80%;
+        max-width: 1000px;
+        border-radius: 10px;
+        position: relative;
+        overflow-y: auto;
+        max-height: 80vh;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        animation: slideUp 0.5s ease-out;
+    }
+
+    .modal-header {
+        text-align: center;
+        font-size: 28px;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .modal-body {
+        font-size: 18px;
+        line-height: 1.8;
+        color: #555;
+    }
+
+    .section h2 {
+        font-size: 20px;
+        color: #4CAF50;
+        margin-bottom: 15px;
+    }
+
+    .section ul {
+        margin-left: 20px;
+        list-style-type: none;
+    }
+
+    .section ul li {
+        margin-bottom: 10px;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+    }
+
+    .close-btn:hover {
+        color: red;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(50px);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<!-- JavaScript -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Cachear elementos del DOM
+    const modal = document.getElementById("modal");
+    const openModalBtn = document.getElementById("openModalBtn");
+    const closeModalBtn = document.querySelector(".close-btn");
+    const userNameHeader = document.getElementById('userNameHeader');
+    const userNameModal = document.getElementById('userNameModal');
+
+    // Verificar si SweetAlert2 está disponible
+    if (typeof Swal === 'undefined') {
+        console.error('SweetAlert2 no está cargado. Por favor, incluya la librería SweetAlert2.');
+        return;
+    }
+
+    // Verificar si los elementos necesarios existen en el DOM
+    if (modal && openModalBtn && closeModalBtn && userNameHeader && userNameModal) {
+        // Mostrar el nombre de usuario almacenado o mostrar el mensaje de bienvenida
+        const userNameStored = localStorage.getItem('userName');
+        if (!userNameStored) {
+            showWelcomeAlert();
+        } else {
+            updateUserName(userNameStored);
+        }
+
+        // Event listeners para el modal
+        openModalBtn.addEventListener("click", () => {
+            modal.style.display = "flex";
+            document.body.style.overflow = 'hidden'; // Prevenir desplazamiento de fondo
+        });
+
+        closeModalBtn.addEventListener("click", () => {
+            closeModal();
+        });
+
+        window.addEventListener("click", (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Listener para la tecla Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.style.display === 'flex') {
+                closeModal();
+            }
+        });
+    } else {
+        console.error('Elementos del modal requeridos no encontrados en el DOM');
+    }
+
+    // Función para cerrar el modal
+    function closeModal() {
+        modal.style.display = "none";
+        document.body.style.overflow = 'auto'; // Restaurar desplazamiento
+    }
+
+    // Mostrar el mensaje de bienvenida con SweetAlert2
+    function showWelcomeAlert() {
+        Swal.fire({
+            title: 'Bienvenido!',
+            text: 'Por favor ingrese su nombre de usuario para comenzar.',
+            input: 'text',
+            inputPlaceholder: 'Nombre de usuario',
+            showCancelButton: false,
+            confirmButtonText: 'Aceptar',
+            allowOutsideClick: false,
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Por favor ingrese un nombre de usuario';
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed && result.value) {
+                detectGenderAndUpdateName(result.value);
+            }
+        });
+    }
+
+    // Detectar el género y actualizar el nombre de usuario
+    function detectGenderAndUpdateName(userName) {
+        fetch(`https://api.genderize.io/?name=${encodeURIComponent(userName)}`)
+            .then(response => response.json())
+            .then(data => {
+                const saludo = data.gender === "female" ? "Bienvenida" : "Bienvenido";
+                const mensaje = `${saludo}, ${userName}, GRACIAS POR JUGAR`;
+                localStorage.setItem('userName', mensaje);
+                updateUserName(mensaje);
+            })
+            .catch(error => {
+                console.error("Error al detectar el género:", error);
+                const mensaje = `Bienvenido, ${userName}, GRACIAS POR JUGAR`;
+                localStorage.setItem('userName', mensaje);
+                updateUserName(mensaje);
+            });
+    }
+
+    // Actualizar el nombre de usuario en la interfaz
+    function updateUserName(name) {
+        if (userNameHeader) {
+            userNameHeader.textContent = name;
+        }
+        if (userNameModal) {
+            userNameModal.textContent = name;
+        }
+    }
+});
+
+</script>
+
+
+    <div class="game-status-block">
+    <div class="difficulty-title">Dificultad</div>
+    <div class="difficulty-grid">
+        <button class="difficulty-btn active" data-difficulty="facil">
+            <i class="fa fa-smile"></i> Fácil
+        </button>
+        <button class="difficulty-btn" data-difficulty="medio">
+            <i class="fa fa-meh"></i> Medio
+        </button>
+        <button class="difficulty-btn" data-difficulty="dificil">
+            <i class="fa fa-frown"></i> Difícil
+        </button>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-item">
+            <i class="fas fa-layer-group"></i>
+            <span>Nivel: <span id="level">1</span></span>
+        </div>
+        <div class="stat-item">
+            <i class="fas fa-star"></i>
+            <span>Puntos: <span id="points">0</span></span>
+        </div>
+        <div class="stat-item">
+            <i class="fas fa-fire"></i>
+            <span>Racha: <span id="streak">0</span></span>
+        </div>
+        <div class="stat-item">
+            <i class="fas fa-clock"></i>
+            <span>Tiempo: <span id="timer">30</span>s</span>
+        </div>
+    </div>
+</div>
+    <div class="question-container">
+        <h2 id="subject-title">Física</h2>
+        <div class="timer" id="question-timer"></div>
+        <p id="question-text">Cargando pregunta...</p>
+        <div class="options" id="options-container"></div>
+    </div>
+
+    <nav class="nav-bottom">
+        <a href="#" class="nav-item active" data-subject="fisica">
+            <i class="fas fa-atom"></i>
+            <span>Física</span>
+        </a>
+        <a href="#" class="nav-item" data-subject="estadistica">
+            <i class="fas fa-chart-bar"></i>
+            <span>Estadística</span>
+        </a>
+        <a href="#" class="nav-item" data-subject="ingenieria">
+            <i class="fas fa-cogs"></i>
+            <span>Ingeniería</span>
+        </a>
+        <a href="#" class="nav-item" data-subject="economia">
+            <i class="fas fa-dollar-sign"></i>
+            <span>Economía</span>
+        </a>
+        <a href="#" class="nav-item" data-subject="computacion">
+            <i class="fas fa-laptop-code"></i>
+            <span>Computación</span>
+        </a>
+    </nav>
+<!-- Agrega SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+     $(document).ready(() => {
+    loadProgress();
+
+    // Manejar clics en la barra de navegación
+    $('.nav-item').click(function (e) {
+        e.preventDefault();
+
+        // Remover la clase "active" de todos los elementos y agregarla al seleccionado
+        $('.nav-item').removeClass('active');
+        $(this).addClass('active');
+
+        // Obtener el nuevo tema y actualizar el estado
+        const newSubject = $(this).data('subject');
+        state.currentSubject = newSubject;
+
+        // Cargar una nueva pregunta del tema seleccionado
+        loadQuestion(newSubject);
+    });
+
+    // Iniciar con la primera materia
+    loadQuestion(state.currentSubject);
+});
+
+// Estado global del juego
+let state = {
+    level: parseInt(localStorage.getItem('level')) || 1,
+    points: parseInt(localStorage.getItem('points')) || 0,
+    streak: parseInt(localStorage.getItem('streak')) || 0,
+    currentSubject: 'fisica',
+    difficulty: 'facil',
+    timer: null,
+    timeLeft: 30,
+    maxTime: 30,
+    streakMultiplier: 1
+};
+
+const questionGenerators = {
+    fisica: function(difficulty) {
+        const types = [
+            {
+                generator: () => {
+                    if (difficulty === 'facil') {
+                        const velocidad = Math.floor(Math.random() * 50) + 20; // Mayor rango de valores
+                        const tiempo = Math.floor(Math.random() * 10) + 2; 
+                        const distancia = velocidad * tiempo;
+                        return {
+                            question: `Un auto se mueve a ${velocidad} m/s durante ${tiempo} segundos. ¿Qué distancia recorre?`,
+                            correct: `${distancia} metros`,
+                            generateIncorrect: () => [
+                                `${distancia + Math.floor(Math.random() * 15) + 5} metros`,
+                                `${distancia - Math.floor(Math.random() * 10) + 3} metros`,
+                                `${distancia * 2} metros`
+                            ]
+                        };
+                    } else if (difficulty === 'medio') {
+                        const masa = Math.floor(Math.random() * 40) + 10;
+                        const velocidad = Math.floor(Math.random() * 30) + 5;
+                        const energia = 0.5 * masa * velocidad * velocidad;
+                        return {
+                            question: `Un objeto de ${masa} kg se mueve a ${velocidad} m/s. ¿Cuál es su energía cinética?`,
+                            correct: `${energia.toFixed(1)} Joules`,
+                            generateIncorrect: () => [
+                                `${(energia * 1.2).toFixed(1)} Joules`,
+                                `${(energia * 0.8).toFixed(1)} Joules`,
+                                `${(energia + Math.floor(Math.random() * 50) + 20).toFixed(1)} Joules`
+                            ]
+                        };
+                    } else { // Nivel difícil
+                        const masa = Math.floor(Math.random() * 25) + 5;
+                        const aceleracion = Math.floor(Math.random() * 15) + 5;
+                        const fuerza = masa * aceleracion;
+                        return {
+                            question: `Un objeto de ${masa} kg se acelera a ${aceleracion} m/s². ¿Cuál es la fuerza aplicada?`,
+                            correct: `${fuerza} N`,
+                            generateIncorrect: () => [
+                                `${fuerza + Math.floor(Math.random() * 10) + 5} N`,
+                                `${fuerza - Math.floor(Math.random() * 10) + 2} N`,
+                                `${fuerza * 1.5} N`
+                            ]
+                        };
+                    }
+                }
+            }
+        ];
+        return types[Math.floor(Math.random() * types.length)].generator();
+    },
+
+    estadistica: function(difficulty) {
+        const types = [
+            {
+                generator: () => {
+                    if (difficulty === 'facil') {
+                        const numbers = Array.from({ length: 6 }, () => Math.floor(Math.random() * 60));
+                        const mean = numbers.reduce((a, b) => a + b) / numbers.length;
+                        return {
+                            question: `Calcula la media de los números ${numbers.join(', ')}.`,
+                            correct: `${mean.toFixed(1)}`,
+                            generateIncorrect: () => [
+                                `${(mean + Math.random() * 5).toFixed(1)}`,
+                                `${(mean - Math.random() * 5).toFixed(1)}`,
+                                `${(mean * 1.2).toFixed(1)}`
+                            ]
+                        };
+                    } else if (difficulty === 'medio') {
+                        const numbers = Array.from({ length: 8 }, () => Math.floor(Math.random() * 100));
+                        numbers.sort((a, b) => a - b);
+                        const median = numbers.length % 2 === 0 
+                            ? (numbers[numbers.length/2 - 1] + numbers[numbers.length/2]) / 2
+                            : numbers[Math.floor(numbers.length/2)];
+                        return {
+                            question: `¿Cuál es la mediana de los números ${numbers.join(', ')}?`,
+                            correct: `${median.toFixed(1)}`,
+                            generateIncorrect: () => [
+                                `${(median + Math.random() * 5).toFixed(1)}`,
+                                `${(median - Math.random() * 5).toFixed(1)}`,
+                                `${(numbers[0]).toFixed(1)}`
+                            ]
+                        };
+                    } else { // Nivel difícil
+                        const numbers = Array.from({ length: 7 }, () => Math.floor(Math.random() * 70));
+                        const mean = numbers.reduce((a, b) => a + b) / numbers.length;
+                        const variance = numbers.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / numbers.length;
+                        const stdDev = Math.sqrt(variance);
+                        return {
+                            question: `Calcula la desviación estándar de los números ${numbers.join(', ')} (redondea a un decimal).`,
+                            correct: `${stdDev.toFixed(1)}`,
+                            generateIncorrect: () => [
+                                `${(stdDev + Math.random() * 3).toFixed(1)}`,
+                                `${(stdDev - Math.random() * 3).toFixed(1)}`,
+                                `${(stdDev * 1.3).toFixed(1)}`
+                            ]
+                        };
+                    }
+                }
+            }
+        ];
+        return types[Math.floor(Math.random() * types.length)].generator();
+    },
+
+    ingenieria: function(difficulty) {
+        const types = [
+            {
+                generator: () => {
+                    if (difficulty === 'facil') {
+                        const resistencia1 = Math.floor(Math.random() * 150) + 10;
+                        const resistencia2 = Math.floor(Math.random() * 150) + 10;
+                        const resistenciaTotal = resistencia1 + resistencia2;
+                        return {
+                            question: `Dos resistencias de ${resistencia1}Ω y ${resistencia2}Ω están en serie. ¿Cuál es la resistencia total?`,
+                            correct: `${resistenciaTotal}Ω`,
+                            generateIncorrect: () => [
+                                `${resistenciaTotal + Math.floor(Math.random() * 20) + 5}Ω`,
+                                `${resistenciaTotal - Math.floor(Math.random() * 20) + 3}Ω`,
+                                `${(resistencia1 * resistencia2) / (resistencia1 + resistencia2)}Ω`
+                            ]
+                        };
+                    } else if (difficulty === 'medio') {
+                        const capacitor = (Math.random() * 200 + 10).toFixed(1);
+                        const voltaje = Math.floor(Math.random() * 300) + 50;
+                        const energia = 0.5 * parseFloat(capacitor) * 1e-6 * voltaje * voltaje;
+                        return {
+                            question: `Un capacitor de ${capacitor}µF se carga a ${voltaje}V. ¿Cuál es la energía almacenada?`,
+                            correct: `${energia.toExponential(2)}J`,
+                            generateIncorrect: () => [
+                                `${(energia * 1.5).toExponential(2)}J`,
+                                `${(energia * 0.7).toExponential(2)}J`,
+                                `${(energia + 0.1).toExponential(2)}J`
+                            ]
+                        };
+                    } else { // Nivel difícil
+                        const inductancia = (Math.random() * 20 + 1).toFixed(2);
+                        const capacitancia = (Math.random() * 200 + 10).toFixed(1);
+                        const frecuencia = 1 / (2 * Math.PI * Math.sqrt(parseFloat(inductancia) * parseFloat(capacitancia) * 1e-6));
+                        return {
+                            question: `En un circuito LC con inductancia ${inductancia}H y capacitancia ${capacitancia}µF, ¿cuál es la frecuencia de resonancia?`,
+                            correct: `${frecuencia.toFixed(1)} Hz`,
+                            generateIncorrect: () => [
+                                `${(frecuencia * 1.3).toFixed(1)} Hz`,
+                                `${(frecuencia * 0.7).toFixed(1)} Hz`,
+                                `${(frecuencia + 50).toFixed(1)} Hz`
+                            ]
+                        };
+                    }
+                }
+            }
+        ];
+        return types[Math.floor(Math.random() * types.length)].generator();
+    }, 
+    
+    economia: function(difficulty) {
+        const types = [
+            {
+                generator: () => {
+                    if (difficulty === 'facil') {
+                        const precio = Math.floor(Math.random() * 50) + 10;
+                        const cantidad = Math.floor(Math.random() * 10) + 1;
+                        const ingresoTotal = precio * cantidad;
+                        return {
+                            question: `Si el precio de un producto es $${precio} y se venden ${cantidad} unidades, ¿cuál es el ingreso total?`,
+                            correct: `$${ingresoTotal}`,
+                            generateIncorrect: () => [
+                                `$${ingresoTotal + Math.floor(Math.random() * 20) + 5}`,
+                                `$${ingresoTotal - Math.floor(Math.random() * 10) + 2}`,
+                                `$${ingresoTotal * 2}`
+                            ]
+                        };
+                    } else if (difficulty === 'medio') {
+                        const costoFijo = Math.floor(Math.random() * 500) + 100;
+                        const costoVariable = Math.floor(Math.random() * 20) + 5;
+                        const cantidad = Math.floor(Math.random() * 50) + 10;
+                        const costoTotal = costoFijo + (costoVariable * cantidad);
+                        return {
+                            question: `Si el costo fijo es $${costoFijo} y el costo variable por unidad es $${costoVariable}, ¿cuál es el costo total para ${cantidad} unidades?`,
+                            correct: `$${costoTotal}`,
+                            generateIncorrect: () => [
+                                `$${costoTotal + Math.floor(Math.random() * 50) + 10}`,
+                                `$${costoTotal - Math.floor(Math.random() * 30) + 5}`,
+                                `$${costoTotal * 1.2}`
+                            ]
+                        };
+                    } else { // Nivel difícil
+                        const PIB = Math.floor(Math.random() * 2000) + 500;
+                        const población = Math.floor(Math.random() * 50) + 10;
+                        const PIB_per_capita = PIB / población;
+                        return {
+                            question: `Si el PIB de un país es $${PIB} millones y su población es de ${población} millones, ¿cuál es el PIB per cápita?`,
+                            correct: `$${PIB_per_capita.toFixed(1)} millones`,
+                            generateIncorrect: () => [
+                                `$${(PIB_per_capita * 1.2).toFixed(1)} millones`,
+                                `$${(PIB_per_capita * 0.8).toFixed(1)} millones`,
+                                `$${(PIB_per_capita + 50).toFixed(1)} millones`
+                            ]
+                        };
+                    }
+                }
+            }
+        ];
+        return types[Math.floor(Math.random() * types.length)].generator();
+    },
+
+    computacion: function(difficulty) {
+        const types = [
+            {
+                generator: () => {
+                    if (difficulty === 'facil') {
+                        const bits = Math.pow(2, Math.floor(Math.random() * 4) + 2);
+                        const bytes = bits / 8;
+                        return {
+                            question: `¿Cuántos bytes hay en ${bits} bits?`,
+                            correct: `${bytes} bytes`,
+                            generateIncorrect: () => [
+                                `${bytes * 2} bytes`,
+                                `${bytes - 1} bytes`,
+                                `${bytes + 3} bytes`
+                            ]
+                        };
+                    } else if (difficulty === 'medio') {
+                        const base = Math.floor(Math.random() * 10) + 2;
+                        const exponente = Math.floor(Math.random() * 3) + 2;
+                        const resultado = Math.pow(base, exponente);
+                        return {
+                            question: `¿Cuál es el resultado de ${base} elevado a la ${exponente}?`,
+                            correct: `${resultado}`,
+                            generateIncorrect: () => [
+                                `${resultado + Math.floor(Math.random() * 10) + 1}`,
+                                `${resultado - Math.floor(Math.random() * 5) + 1}`,
+                                `${resultado * 2}`
+                            ]
+                        };
+                    } else { // Nivel difícil
+                        const ip1 = Math.floor(Math.random() * 256);
+                        const ip2 = Math.floor(Math.random() * 256);
+                        const ip3 = Math.floor(Math.random() * 256);
+                        const ip4 = Math.floor(Math.random() * 256);
+                        return {
+                            question: `¿Cuál de las siguientes es una dirección IP válida en IPv4?`,
+                            correct: `${ip1}.${ip2}.${ip3}.${ip4}`,
+                            generateIncorrect: () => [
+                                `${ip1}.${ip2}.${ip3}.${ip4 + 300}`,
+                                `${ip1}.${ip2}.${ip3}.999`,
+                                `${ip1}.${ip2}.${ip3}.${-1}`
+                            ]
+                        };
+                    }
+                }
+            }
+        ];
+        return types[Math.floor(Math.random() * types.length)].generator();
+    }
+};
+ 
+
+// Función para generar una pregunta completa con opciones
+function generateQuestion(subject, difficulty) {
+    const questionData = questionGenerators[subject](difficulty);
+    const incorrectOptions = questionData.generateIncorrect();
+    const options = [...incorrectOptions, questionData.correct];
+    
+    // Mezclar opciones
+    for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+    }
+    
+    return {
+        question: questionData.question,
+        options: options,
+        correct: questionData.correct
+    };
+}
+
+// Funciones de temporizador
+function startTimer() {
+    clearInterval(state.timer);
+    state.timeLeft = state.maxTime;
+    updateTimer();
+    
+    state.timer = setInterval(() => {
+        state.timeLeft--;
+        updateTimer();
+        
+        if (state.timeLeft <= 0) {
+            clearInterval(state.timer);
+            handleTimeout();
+        }
+    }, 1000);
+}
+
+function updateTimer() {
+    $('#timer').text(state.timeLeft);
+    const percentage = (state.timeLeft / state.maxTime) * 100;
+    
+    if (percentage <= 20) {
+        $('#timer').css('color', '#f44336');
+    } else if (percentage <= 50) {
+        $('#timer').css('color', '#ff9800');
+    } else {
+        $('#timer').css('color', '#2a5298');
+    }
+}
+
+// Manejo de eventos del juego
+function handleTimeout() {
+    $('.option[data-correct="true"]').addClass('correct');
+    state.streak = 0;
+    updateStats();
+    showFeedback('¡Se acabó el tiempo!', false);
+    
+    setTimeout(() => {
+        loadQuestion(state.currentSubject);
+    }, 2000);
+}
+
+function handleAnswer(isCorrect) {
+    if (isCorrect) {
+        state.streak++;
+        state.points += Math.floor(10 * state.streakMultiplier * (state.timeLeft / state.maxTime));
+        if (state.streak % 5 === 0) {
+            state.level++;
+        }
+        showFeedback('¡Correcto!', true);
+    } else {
+        state.streak = 0;
+        showFeedback('Incorrecto', false);
+    }
+    
+    updateStats();
+    saveProgress();
+    
+    setTimeout(() => {
+        loadQuestion(state.currentSubject);
+    }, 1500);
+}
+
+// Funciones de UI
+function showFeedback(message, isCorrect) {
+    const feedback = $('#feedback');
+    feedback.text(message)
+           .removeClass('correct incorrect')
+           .addClass(isCorrect ? 'correct' : 'incorrect')
+           .fadeIn()
+           .delay(1000)
+           .fadeOut();
+}
+
+function updateStats() {
+    $('#level').text(state.level);
+    $('#points').text(state.points);
+    $('#streak').text(state.streak);
+    state.streakMultiplier = 1 + Math.floor(state.streak / 5) * 0.5;
+    $('#multiplier').text(`x${state.streakMultiplier.toFixed(1)}`);
+}
+
+// Persistencia de datos
+function saveProgress() {
+    localStorage.setItem('level', state.level);
+    localStorage.setItem('points', state.points);
+    localStorage.setItem('streak', state.streak);
+}
+
+function loadProgress() {
+    state.level = parseInt(localStorage.getItem('level')) || 1;
+    state.points = parseInt(localStorage.getItem('points')) || 0;
+    state.streak = parseInt(localStorage.getItem('streak')) || 0;
+    updateStats();
+}
+
+// Event listeners
+$(document).ready(() => {
+    loadProgress();
+    
+    $('.subject-btn').click(function() {
+        $('.subject-btn').removeClass('active');
+        $(this).addClass('active');
+        state.currentSubject = $(this).data('subject');
+        loadQuestion(state.currentSubject);
+    });
+    
+    $('.difficulty-btn').click(function() {
+        $('.difficulty-btn').removeClass('active');
+        $(this).addClass('active');
+        state.difficulty = $(this).data('difficulty');
+        loadQuestion(state.currentSubject);
+    });
+    
+    $('#options-container').on('click', '.option', function() {
+        if (!$(this).hasClass('disabled')) {
+            const isCorrect = $(this).data('correct') === true;
+            $('.option').addClass('disabled');
+            $(this).addClass(isCorrect ? 'correct' : 'incorrect');
+            $('.option[data-correct="true"]').addClass('correct');
+            clearInterval(state.timer);
+            handleAnswer(isCorrect);
+        }
+    });
+    
+    // Iniciar el juego
+    loadQuestion('fisica');
+});
+
+// Función para cargar preguntas
+function loadQuestion(subject) {
+    const questionData = generateQuestion(subject, state.difficulty);
+    $('#subject-title').text(subject.charAt(0).toUpperCase() + subject.slice(1));
+    $('#question-text').text(questionData.question);
+    
+    const optionsHtml = questionData.options.map(option => 
+        `<div class="option" data-correct="${option === questionData.correct}">${option}</div>`
+    ).join('');
+    
+    $('#options-container').html(optionsHtml);
+    $('.option').removeClass('disabled correct incorrect');
+    startTimer();
+}
+</script>
+</body>
+</html>
