@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>Juego de Física: Movimiento</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            flex: 1;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        header {
+            background: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #ccc;
+            font-family: Arial, sans-serif;
+        }
+
+        header h1 {
+            font-size: 1.2em;
+            margin: 0;
+            padding-bottom: 10px;
+            color: #333;
+        }
+
+        header p {
+            margin: 5px;
+            font-size: 1em;
+            color: #666;
+        }
+
+        header i {
+            margin-right: 10px;
+            color: #ff5722;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .stats div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats i {
+            color: #4a6cf7;
+            font-size: 20px;
+        }
+
+        .question-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 158px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        canvas {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+
+        #question {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .answers-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .answer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-color: #4a6cf7;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            gap: 10px;
+        }
+
+        .answer:hover {
+            background-color: #3451c7;
+            transform: translateY(-2px);
+        }
+
+        .answer.correct {
+            background-color: #28a745;
+        }
+
+        .answer.incorrect {
+            background-color: #dc3545;
+        }
+
+        .hint-icon {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            font-size: 24px;
+            background-color: #ffd700;
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            z-index: 999;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item i {
+            font-size: 24px;
+        }
+
+        .nav-item.active {
+            color: #4a6cf7;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: slideDown 0.5s ease;
+            color: #333;
+        }
+
+        .close-modal {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: #ff6f61;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Variables de Diseño */
+        :root {
+            --primary-color: #333;
+            --secondary-color: #333;
+            --background-color: #f4f4f4;
+            --modal-bg-start: #ff9a9e;
+            --modal-bg-end: #fad0c4;
+            --overlay-bg: rgba(0, 0, 0, 0.7);
+            --border-color: #ddd;
+            --close-color: #fff;
+            --close-hover-color: #ff6f61;
+            --transition-speed: 0.3s;
+            --font-family: 'Roboto', sans-serif;
+        }
+
+        /* Estilos Globales */
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--secondary-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Modal Overlay */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--overlay-bg);
+            padding: 20px;
+        }
+
+        /* Contenedor del Modal */
+        .modal-content {
+            background: linear-gradient(135deg, var(--modal-bg-start), var(--modal-bg-end));
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 12px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            animation: modalOpen var(--transition-speed) ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        /* Botón de Cierre */
+        .close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            color: var(--close-color);
+            cursor: pointer;
+            transition: color var(--transition-speed);
+        }
+
+        .close:hover {
+            color: var(--close-hover-color);
+        }
+
+        /* Títulos y Contenido */
+        .modal-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+            text-align: left;
+        }
+
+        .modal-content h2 i {
+            margin-right: 0.5rem;
+        }
+
+        .modal-content p {
+            margin: 1rem 0;
+            line-height: 1.6;
+            font-size: 1rem;
+            text-align: left;
+        }
+
+        .modal-content p i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .modal-content p strong {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        /* Animaciones del Modal */
+        @keyframes modalOpen {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @keyframes modalClose {
+            from {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.95);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header id="header">
+        <h1><i class="fa fa-gamepad"></i> Juego de Física: Cinemática</h1>
+        <p><i class="fa fa-user-secret"></i> Desarrollado por Andres Alvarez</p>
+        <p><i class="fa fa-info-circle"></i> Versión 1.0.4</p>
+    </header>
+
+ 
+    <!-- Modal -->
+<div id="myModal" class="modal">
+  <div class="modal-content">
+    <span class="close"><i class="fa fa-times"></i></span>
+    <h2><i class="fa fa-graduation-cap"></i> Acerca del Juego</h2>
+    <p><i class="fa fa-book"></i> <strong>Es un juego educativo de física que cubre tres áreas principales:</strong></p>
+
+    <p><i class="fa fa-running"></i> <strong>MRU (Movimiento Rectilíneo Uniforme):</strong><br>
+      <i class="fa fa-road"></i> Cálculo de velocidad<br>
+      <i class="fa fa-ruler-horizontal"></i> Cálculo de distancia<br>
+      <i class="fa fa-clock"></i> Cálculo de tiempo
+    </p>
+
+    <p><i class="fa fa-rocket"></i> <strong>MRUA (Movimiento Rectilíneo Uniformemente Acelerado):</strong><br>
+      <i class="fa fa-tachometer-alt"></i> Cálculo de aceleración<br>
+      <i class="fa fa-angle-double-right"></i> Velocidad final<br>
+      <i class="fa fa-arrows-alt-v"></i> Altura máxima
+    </p>
+
+    <p><i class="fa fa-sync"></i> <strong>MCL (Movimiento Circular):</strong><br>
+      <i class="fa fa-circle"></i> Velocidad angular<br>
+      <i class="fa fa-bullseye"></i> Aceleración centrípeta<br>
+      <i class="fa fa-redo"></i> Período y frecuencia
+    </p>
+
+    <p><i class="fa fa-trophy"></i> <strong>Funcionamiento del juego:</strong><br>
+      <i class="fa fa-star"></i> El jugador gana puntos por cada respuesta correcta<br>
+      <i class="fa fa-bolt"></i> Sistema de racha con respuestas consecutivas<br>
+      <i class="fa fa-level-up-alt"></i> Cada 3 respuestas correctas, sube de nivel<br>
+      <i class="fa fa-lightbulb"></i> Sistema de pistas<br>
+      <i class="fa fa-save"></i> Progreso guardado automáticamente
+    </p>
+
+    <!-- Mensaje de soporte técnico -->
+    <div class="support-message">
+      <p>
+        <strong>Soporte Técnico:</strong> Si encuentras algún problema o tienes sugerencias, por favor contacta al creador en 
+        <a href="mailto:julianmoncayo69@gmail.com">julianmoncayo69@gmail.com</a> o utiliza el siguiente formulario para reportar el error.
+      </p>
+    </div>
+
+    <!-- Formulario para reportar bugs -->
+    <form id="bugReportForm" action="mailto:julianmoncayo69@gmail.com" method="post" enctype="text/plain">
+      <h3>Reporte de Bugs</h3>
+      
+      <label for="name">Nombre:</label>
+      <input type="text" id="name" name="name" placeholder="Tu nombre" required>
+
+      <label for="email">Correo Electrónico:</label>
+      <input type="email" id="email" name="email" placeholder="Tu correo electrónico" required>
+
+      <!-- Selección del tipo de reporte -->
+      <fieldset class="report-type">
+        <legend>Tipo de Reporte:</legend>
+        
+        <label class="radio-option">
+          <input type="radio" name="reportType" value="bug" required>
+          <span class="custom-radio"></span>
+          <i class="fa fa-bug"></i> Reporte de Error
+        </label>
+        
+        <label class="radio-option">
+          <input type="radio" name="reportType" value="suggestion">
+          <span class="custom-radio"></span>
+          <i class="fa fa-lightbulb"></i> Sugerencia
+        </label>
+        
+        <label class="radio-option">
+          <input type="radio" name="reportType" value="general">
+          <span class="custom-radio"></span>
+          <i class="fa fa-info-circle"></i> Comentario General
+        </label>
+      </fieldset>
+
+      <label for="description">Descripción del Bug o Comentario:</label>
+      <textarea id="description" name="description" placeholder="Describe el problema o tu sugerencia" required></textarea>
+
+      <button type="submit">Enviar Reporte</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("bugReportForm");
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault(); // Evita el envío real del formulario
+
+    // Capturar los valores del formulario
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const description = document.getElementById("description").value;
+    const reportType = document.querySelector('input[name="reportType"]:checked');
+
+    if (!reportType) {
+      showFeedbackModal(`
+        <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+        <strong>Error:</strong> Debes seleccionar un tipo de reporte. ❌
+      `);
+      return;
+    }
+
+    // Crear el contenido del mensaje de confirmación
+    const reportMessage = `
+      <i class="fa fa-check-circle" aria-hidden="true"></i>
+      <strong>Reporte enviado</strong> ✅
+      <p>
+        <i class="fa fa-user" aria-hidden="true"></i>
+        <strong>Nombre:</strong> ${name}
+      </p>
+      <p>
+        <i class="fa fa-envelope" aria-hidden="true"></i>
+        <strong>Correo:</strong> ${email}
+      </p>
+      <p>
+        <i class="fa fa-flag" aria-hidden="true"></i>
+        <strong>Tipo:</strong> ${reportType.value}
+      </p>
+      <p>
+        <i class="fa fa-comment" aria-hidden="true"></i>
+        <strong>Descripción:</strong> ${description}
+      </p>
+    `;
+
+    showFeedbackModal(reportMessage);
+    form.reset(); // Limpiar formulario después de la simulación
+  });
+
+  function showFeedbackModal(content) {
+    const $modal = $("<div>")
+      .addClass("feedback-modal")
+      .css({
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        background: "#fff",
+        padding: "20px",
+        borderRadius: "10px",
+        boxShadow: "0 0 15px rgba(0,0,0,0.4)",
+        zIndex: 1000,
+        textAlign: "center",
+        fontSize: "18px",
+        fontWeight: "bold",
+        color: "#333",
+        maxWidth: "400px",
+        lineHeight: "1.5",
+      })
+      .html(content)
+      .appendTo("body");
+
+    // Ocultar el modal después de 3 segundos
+    setTimeout(() => $modal.fadeOut(500, () => $modal.remove()), 3000);
+  }
+});
+
+
+</script>
+<!-- Estilos CSS -->
+<style>
+  /* Estilos para el mensaje de soporte */
+  .support-message {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #e7f3fe;
+    border-left: 6px solid #2196F3;
+    border-radius: 4px;
+  }
+  
+  /* Estilos para el formulario de bugs */
+  #bugReportForm {
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+  }
+  
+  #bugReportForm h3 {
+    margin-bottom: 15px;
+    color: #333;
+  }
+  
+  #bugReportForm label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  #bugReportForm input[type="text"],
+  #bugReportForm input[type="email"],
+  #bugReportForm textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+  }
+  
+  #bugReportForm textarea {
+    resize: vertical;
+    height: 100px;
+  }
+  
+  #bugReportForm button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  #bugReportForm button[type="submit"]:hover {
+    background-color: #45a049;
+  }
+  
+  /* Estilos para la selección del tipo de reporte */
+  .report-type {
+    border: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  
+  .report-type legend {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .radio-option {
+    display: inline-block;
+    margin-right: 15px;
+    cursor: pointer;
+    position: relative;
+    padding-left: 30px;
+    line-height: 20px;
+  }
+  
+  .radio-option input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+  
+  /* Círculo personalizado para el radio */
+  .custom-radio {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #fff;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+  }
+  
+  /* Mostrar icono de verificación cuando esté seleccionado */
+  .radio-option input:checked ~ .custom-radio {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+  }
+  
+  .radio-option input:checked ~ .custom-radio:after {
+    content: "\f00c";
+    font-family: "FontAwesome";
+    position: absolute;
+    left: 4px;
+    top: -3px;
+    font-size: 18px;
+    color: white;
+  }
+  
+  /* Ajuste de iconos en las etiquetas */
+  .radio-option i {
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+</style>
+
+    <div class="container">
+        <div class="stats">
+            <div class="points"><i class="fas fa-star"></i> Puntos: <span id="points">0</span></div>
+            <div class="level"><i class="fas fa-trophy"></i> Nivel: <span id="level">1</span></div>
+            <div class="streak"><i class="fas fa-fire"></i> Racha: <span id="streak">0</span></div>
+        </div>
+
+        <div class="question-container">
+            <h2 id="question"></h2>
+            <div id="canvas-container">
+                <canvas id="mathCanvas" width="400" height="200"></canvas>
+            </div>
+            <div class="answers-grid">
+                <button class="answer"><i class="fas"></i><span class="answer-text"></span></button>
+                <button class="answer"><i class="fas"></i><span class="answer-text"></span></button>
+                <button class="answer"><i class="fas"></i><span class="answer-text"></span></button>
+                <button class="answer"><i class="fas"></i><span class="answer-text"></span></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="hint-icon">
+        <i class="fas fa-lightbulb"></i>
+    </div>
+
+    <!-- Botón de Calificación (Encima de la Barra de Navegación) -->
+<div id="openRatingModal" class="rating-button">
+    <i class="fa fa-poll-h"></i> 
+</div>
+
+<!-- Barra de Navegación -->
+<div class="nav-bar">
+    <div class="nav-item active" id="mru">
+        <i class="fas fa-running"></i>
+        <span>MRU</span>
+    </div>
+    <div class="nav-item" id="mrua">
+        <i class="fas fa-rocket"></i>
+        <span>MRUA</span>
+    </div>
+    <div class="nav-item" id="mcl">
+        <i class="fas fa-sync"></i>
+        <span>MCL</span>
+    </div>
+</div>
+<div class="modal" id="hintModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Pista</h3>
+            <p id="hintText"></p>
+        </div>
+    </div>
+<!-- Modal de Calificación -->
+<div id="ratingModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" id="closeRatingModal">&times;</span>
+        <h2>Califica el Juego</h2>
+        <p>¿Te ha gustado el juego? ¡Déjanos tu calificación!</p>
+        <div class="stars">
+            <i class="fa fa-star" data-value="1"></i>
+            <i class="fa fa-star" data-value="2"></i>
+            <i class="fa fa-star" data-value="3"></i>
+            <i class="fa fa-star" data-value="4"></i>
+            <i class="fa fa-star" data-value="5"></i>
+        </div>
+        <button id="submitRating" class="modal-button">Enviar</button>
+    </div>
+</div>
+
+<!-- Modal de Agradecimiento -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <h2>¡Gracias por tu calificación!</h2>
+        <p id="ratingMessage"></p>
+        <button id="closeConfirmModal" class="modal-button">ACEPTAR</button>
+    </div>
+</div>
+
+<!-- 🎨 Estilos -->
+<style>
+  /* 📌 Botón de calificación (esquina inferior izquierda, encima de la barra) */
+.rating-button {
+    position: fixed;
+    bottom: 90px; /* Lo subimos un poco más */
+    left: 20px; /* Mantiene la posición a la izquierda */
+    background: linear-gradient(135deg, #f4b400, #ff9800);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    border: none;
+    outline: none;
+    z-index: 1001;
+}
+
+.rating-button:hover {
+    background: linear-gradient(135deg, #e0a800, #ff7800);
+    transform: translateY(-3px); /* Efecto sutil al pasar el mouse */
+}
+
+/* Icono dentro del botón */
+.rating-button i {
+    font-size: 18px;
+}
+
+/* 📌 Botón de Enviar dentro del Modal */
+.modal-button {
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.modal-button:hover {
+    background: linear-gradient(135deg, #388e3c, #1b5e20);
+    transform: scale(1.05);
+}
+
+/* 📌 Estilos para las estrellas */
+.stars {
+    display: flex;
+    justify-content: center;
+    gap: 12px; /* Espacio entre estrellas */
+    margin: 15px 0;
+}
+
+.stars i {
+    font-size: 32px; /* Aumentamos el tamaño */
+    color: #ccc; /* Estrellas sin seleccionar */
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+/* Efecto al pasar el mouse */
+.stars i:hover {
+    color: #ffcc00; /* Amarillo al pasar el mouse */
+    transform: scale(1.2); /* Aumenta ligeramente */
+}
+
+/* Estrellas seleccionadas */
+.stars i.active {
+    color: #ffcc00;
+}
+
+</style>
+<!-- Incluir SweetAlert2 desde CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    let userRating = 0; // Calificación seleccionada
+
+    function showModal(modalId) {
+        let modal = document.getElementById(modalId);
+        if (modal) modal.style.display = "flex";
+    }
+
+    function hideModal(modalId) {
+        let modal = document.getElementById(modalId);
+        if (modal) modal.style.display = "none";
+    }
+
+    // **Abrir modal de calificación**
+    document.getElementById("openRatingModal").addEventListener("click", function () {
+        showModal("ratingModal");
+    });
+
+    // **Cerrar modal de calificación**
+    document.getElementById("closeRatingModal").addEventListener("click", function () {
+        hideModal("ratingModal");
+    });
+
+    // **Seleccionar estrellas**
+    document.querySelectorAll(".stars i").forEach(star => {
+        star.addEventListener("mouseenter", function () {
+            let value = parseInt(this.getAttribute("data-value"));
+            document.querySelectorAll(".stars i").forEach(s => {
+                s.classList.toggle("active", parseInt(s.getAttribute("data-value")) <= value);
+            });
+        });
+
+        star.addEventListener("click", function () {
+            userRating = parseInt(this.getAttribute("data-value"));
+        });
+    });
+
+    // **Enviar calificación**
+    document.getElementById("submitRating").addEventListener("click", function () {
+        if (userRating > 0) {
+            hideModal("ratingModal");
+
+            if (userRating <= 3) {
+                askForSuggestion();
+            } else {
+                showThankYouMessage();
+            }
+
+            // **Limpiar selección de estrellas**
+            document.querySelectorAll(".stars i").forEach(star => star.classList.remove("active"));
+            userRating = 0;
+        }
+    });
+
+    // **✅ SweetAlert2 - Solicitar sugerencia**
+    function askForSuggestion() {
+        Swal.fire({
+            title: "Ayúdanos a mejorar",
+            input: "textarea",
+            inputPlaceholder: "Escribe aquí tu sugerencia...",
+            showCancelButton: true,
+            confirmButtonText: "Enviar",
+            cancelButtonText: "Cancelar",
+            inputValidator: (value) => {
+                if (!value) {
+                    return "Por favor, escribe tu sugerencia.";
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showThankYouMessage();
+            }
+        });
+    }
+
+    // **✅ SweetAlert2 - Mensaje de agradecimiento**
+    function showThankYouMessage() {
+        Swal.fire({
+            title: "¡Gracias por tu opinión!",
+            text: "Tus opiniones nos ayuda a mejorar.",
+            icon: "success",
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }
+</script>
+
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+    let points = 0;
+    let level = 1;
+    let streak = 0;
+    let currentSection = "mru";
+    let currentQuestion = null;
+    const canvas = document.getElementById('mathCanvas');
+    const ctx = canvas.getContext('2d');
+
+    loadProgress();
+    generateQuestion();
+    setupEventListeners();
+
+    // Función para dibujar un objeto en movimiento rectilíneo
+    function drawMRU(initialPosition, velocity, time) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const groundY = canvas.height - 50;
+        const objectSize = 20;
+        
+        // Dibujar suelo
+        ctx.beginPath();
+        ctx.moveTo(0, groundY);
+        ctx.lineTo(canvas.width, groundY);
+        ctx.strokeStyle = '#333';
+        ctx.stroke();
+        
+        // Calcular posición actual
+        const position = initialPosition + velocity * time;
+        const x = Math.min(Math.max(position * 30 + 50, objectSize), canvas.width - objectSize);
+        
+        // Dibujar objeto
+        ctx.fillStyle = '#4a6cf7';
+        ctx.fillRect(x - objectSize/2, groundY - objectSize, objectSize, objectSize);
+        
+        // Dibujar flecha de velocidad
+        if (velocity !== 0) {
+            const arrowLength = 30 * Math.sign(velocity);
+            ctx.beginPath();
+            ctx.moveTo(x, groundY - objectSize/2);
+            ctx.lineTo(x + arrowLength, groundY - objectSize/2);
+            ctx.strokeStyle = '#FF5722';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Punta de flecha
+            ctx.beginPath();
+            if (velocity > 0) {
+                ctx.moveTo(x + arrowLength, groundY - objectSize/2);
+                ctx.lineTo(x + arrowLength - 10, groundY - objectSize/2 - 5);
+                ctx.lineTo(x + arrowLength - 10, groundY - objectSize/2 + 5);
+            } else {
+                ctx.moveTo(x + arrowLength, groundY - objectSize/2);
+                ctx.lineTo(x + arrowLength + 10, groundY - objectSize/2 - 5);
+                ctx.lineTo(x + arrowLength + 10, groundY - objectSize/2 + 5);
+            }
+            ctx.closePath();
+            ctx.fillStyle = '#FF5722';
+            ctx.fill();
+        }
+        
+        // Dibujar información
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#333';
+        ctx.fillText(`Posición inicial: ${initialPosition} m`, 20, 30);
+        ctx.fillText(`Velocidad: ${velocity} m/s`, 20, 50);
+        ctx.fillText(`Tiempo: ${time} s`, 20, 70);
+    }
+    
+    // Función para dibujar un objeto en MRUA
+    function drawMRUA(initialVelocity, acceleration, time) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const groundY = canvas.height - 50;
+        const objectSize = 20;
+        
+        // Dibujar suelo
+        ctx.beginPath();
+        ctx.moveTo(0, groundY);
+        ctx.lineTo(canvas.width, groundY);
+        ctx.strokeStyle = '#333';
+        ctx.stroke();
+        
+        // Calcular posición actual y velocidad
+        const velocity = initialVelocity + acceleration * time;
+        const position = initialVelocity * time + 0.5 * acceleration * time * time;
+        const x = Math.min(Math.max(position * 15 + 100, objectSize), canvas.width - objectSize);
+        
+        // Dibujar objeto
+        ctx.fillStyle = '#e74c3c';
+        ctx.fillRect(x - objectSize/2, groundY - objectSize, objectSize, objectSize);
+        
+        // Dibujar flecha de velocidad
+        if (velocity !== 0) {
+            const arrowLength = Math.min(Math.abs(velocity * 5), 50) * Math.sign(velocity);
+            ctx.beginPath();
+            ctx.moveTo(x, groundY - objectSize/2);
+            ctx.lineTo(x + arrowLength, groundY - objectSize/2);
+            ctx.strokeStyle = '#FF5722';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Punta de flecha
+            ctx.beginPath();
+            if (velocity > 0) {
+                ctx.moveTo(x + arrowLength, groundY - objectSize/2);
+                ctx.lineTo(x + arrowLength - 10, groundY - objectSize/2 - 5);
+                ctx.lineTo(x + arrowLength - 10, groundY - objectSize/2 + 5);
+            } else {
+                ctx.moveTo(x + arrowLength, groundY - objectSize/2);
+                ctx.lineTo(x + arrowLength + 10, groundY - objectSize/2 - 5);
+                ctx.lineTo(x + arrowLength + 10, groundY - objectSize/2 + 5);
+            }
+            ctx.closePath();
+            ctx.fillStyle = '#FF5722';
+            ctx.fill();
+        }
+        
+        // Dibujar flecha de aceleración
+        if (acceleration !== 0) {
+            const accelArrowLength = Math.min(Math.abs(acceleration * 10), 40) * Math.sign(acceleration);
+            ctx.beginPath();
+            ctx.moveTo(x, groundY - objectSize - 10);
+            ctx.lineTo(x + accelArrowLength, groundY - objectSize - 10);
+            ctx.strokeStyle = '#27ae60';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Punta de flecha
+            ctx.beginPath();
+            if (acceleration > 0) {
+                ctx.moveTo(x + accelArrowLength, groundY - objectSize - 10);
+                ctx.lineTo(x + accelArrowLength - 10, groundY - objectSize - 15);
+                ctx.lineTo(x + accelArrowLength - 10, groundY - objectSize - 5);
+            } else {
+                ctx.moveTo(x + accelArrowLength, groundY - objectSize - 10);
+                ctx.lineTo(x + accelArrowLength + 10, groundY - objectSize - 15);
+                ctx.lineTo(x + accelArrowLength + 10, groundY - objectSize - 5);
+            }
+            ctx.closePath();
+            ctx.fillStyle = '#27ae60';
+            ctx.fill();
+        }
+        
+        // Dibujar información
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#333';
+        ctx.fillText(`Velocidad inicial: ${initialVelocity} m/s`, 20, 30);
+        ctx.fillText(`Aceleración: ${acceleration} m/s²`, 20, 50);
+        ctx.fillText(`Tiempo: ${time} s`, 20, 70);
+    }
+    
+    // Función para dibujar movimiento circular
+    function drawMCL(radius, angularVelocity, time) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const objectSize = 15;
+        
+        // Dibujar círculo de trayectoria
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = '#aaa';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        // Calcular posición actual
+        const angle = angularVelocity * time;
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        
+        // Dibujar objeto
+        ctx.fillStyle = '#9b59b6';
+        ctx.beginPath();
+        ctx.arc(x, y, objectSize, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Dibujar línea desde el centro
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        // Dibujar flecha de velocidad tangencial
+        const vTangX = -Math.sin(angle) * 30;
+        const vTangY = Math.cos(angle) * 30;
+        
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + vTangX, y + vTangY);
+        ctx.strokeStyle = '#FF5722';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Punta de flecha
+        const arrowAngle = Math.atan2(vTangY, vTangX);
+        ctx.beginPath();
+        ctx.moveTo(x + vTangX, y + vTangY);
+        ctx.lineTo(
+            x + vTangX - 10 * Math.cos(arrowAngle - Math.PI/6),
+            y + vTangY - 10 * Math.sin(arrowAngle - Math.PI/6)
+        );
+        ctx.lineTo(
+            x + vTangX - 10 * Math.cos(arrowAngle + Math.PI/6),
+            y + vTangY - 10 * Math.sin(arrowAngle + Math.PI/6)
+        );
+        ctx.closePath();
+        ctx.fillStyle = '#FF5722';
+        ctx.fill();
+        
+        // Dibujar información
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#333';
+        ctx.fillText(`Radio: ${radius} m`, 20, 30);
+        ctx.fillText(`Velocidad angular: ${angularVelocity.toFixed(2)} rad/s`, 20, 50);
+        ctx.fillText(`Tiempo: ${time} s`, 20, 70);
+    }
+
+    function generateMRUQuestion(level) {
+        const types = ['velocity', 'distance', 'time'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        let question, correctAnswer, wrongAnswers, hint;
+        
+        const initialPosition = getRandomInt(0, 5);
+        const velocity = getRandomInt(1, 5 + level);
+        const time = getRandomInt(1, 5);
+        
+        // Dibujar la representación visual
+        drawMRU(initialPosition, velocity, time);
+        
+        switch(type) {
+            case 'velocity':
+                const distance = velocity * time;
+                question = `Un objeto se mueve con velocidad constante. Si recorre ${distance} m en ${time} s, ¿cuál es su velocidad?`;
+                correctAnswer = `${velocity} m/s`;
+                wrongAnswers = [
+                    `${velocity + 1} m/s`,
+                    `${velocity - 1} m/s`,
+                    `${velocity * 2} m/s`
+                ];
+                hint = "La velocidad en MRU se calcula como: distancia ÷ tiempo";
+                break;
+                
+            case 'distance':
+                const finalPosition = initialPosition + velocity * time;
+                const totalDistance = finalPosition - initialPosition;
+                question = `Un objeto se mueve con velocidad de ${velocity} m/s durante ${time} s. ¿Qué distancia recorre?`;
+                correctAnswer = `${totalDistance} m`;
+                wrongAnswers = [
+                    `${totalDistance + 1} m`,
+                    `${totalDistance - 1} m`,
+                    `${totalDistance * 2} m`
+                ];
+                hint = "La distancia en MRU se calcula como: velocidad × tiempo";
+                break;
+                
+            default: // time
+                const distanceTime = velocity * time;
+                question = `Un objeto se mueve con velocidad constante de ${velocity} m/s. ¿Cuánto tiempo tarda en recorrer ${distanceTime} m?`;
+                correctAnswer = `${time} s`;
+                wrongAnswers = [
+                    `${time + 1} s`,
+                    `${time - 1} s`,
+                    `${time * 2} s`
+                ];
+                hint = "El tiempo en MRU se calcula como: distancia ÷ velocidad";
+        }
+        
+        return { question, correctAnswer, wrongAnswers, hint };
+    }
+
+    function generateMRUAQuestion(level) {
+        const types = ['acceleration', 'finalVelocity', 'maxHeight'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        let question, correctAnswer, wrongAnswers, hint;
+        
+        const initialVelocity = getRandomInt(0, 10);
+        const acceleration = getRandomInt(1, 5);
+        const time = getRandomInt(1, 5);
+        
+        // Dibujar la representación visual
+        drawMRUA(initialVelocity, acceleration, time);
+        
+        switch(type) {
+            case 'acceleration':
+                const finalVelocity = initialVelocity + acceleration * time;
+                question = `Un objeto tiene velocidad inicial de ${initialVelocity} m/s y alcanza ${finalVelocity} m/s en ${time} s. ¿Cuál es su aceleración?`;
+                correctAnswer = `${acceleration} m/s²`;
+                wrongAnswers = [
+                    `${acceleration + 1} m/s²`,
+                    `${acceleration - 1} m/s²`,
+                    `${acceleration * 2} m/s²`
+                ];
+                hint = "La aceleración se calcula como: (velocidad final - velocidad inicial) ÷ tiempo";
+                break;
+                
+            case 'finalVelocity':
+                const vFinal = initialVelocity + acceleration * time;
+                question = `Un objeto tiene velocidad inicial de ${initialVelocity} m/s y aceleración de ${acceleration} m/s². ¿Cuál será su velocidad después de ${time} s?`;
+                correctAnswer = `${vFinal} m/s`;
+                wrongAnswers = [
+                    `${vFinal + 2} m/s`,
+                    `${vFinal - 2} m/s`,
+                    `${Math.round(vFinal * 1.5)} m/s`
+                ];
+                hint = "La velocidad final se calcula como: velocidad inicial + aceleración × tiempo";
+                break;
+                        
+            case 'maxHeight':
+                // Para la altura máxima en un tiro vertical
+                const gravity = 9.8;
+                const maxHeight = Math.round((initialVelocity * initialVelocity) / (2 * gravity));
+                question = `Un objeto se lanza hacia arriba con velocidad inicial de ${initialVelocity} m/s. ¿Qué altura máxima alcanza? (g = 9.8 m/s²)`;
+                correctAnswer = `${maxHeight} m`;
+                wrongAnswers = [
+                    `${maxHeight + 2} m`,
+                    `${maxHeight - 2} m`,
+                    `${Math.round(maxHeight * 1.5)} m`
+                ];
+                hint = "La altura máxima en un tiro vertical se calcula como: (velocidad inicial)² ÷ (2 × g)";
+        }
+        
+        return { question, correctAnswer, wrongAnswers, hint };
+    }
+
+    function generateMCLQuestion(level) {
+        const types = ['angularVelocity', 'centripetalAcceleration', 'period'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        let question, correctAnswer, wrongAnswers, hint;
+        
+        const radius = getRandomInt(2, 5 + level);
+        const angularVelocity = Math.round((getRandomInt(1, 3 + level) / 2) * 10) / 10; // Para obtener números como 0.5, 1, 1.5, etc.
+        const time = getRandomInt(1, 4);
+        
+        // Dibujar la representación visual
+        drawMCL(radius * 20, angularVelocity, time);
+        
+        switch(type) {
+            case 'angularVelocity':
+                const linearVelocity = Math.round(radius * angularVelocity * 10) / 10;
+                question = `Un objeto gira en una trayectoria circular de radio ${radius} m con velocidad tangencial de ${linearVelocity} m/s. ¿Cuál es su velocidad angular?`;
+                correctAnswer = `${angularVelocity} rad/s`;
+                wrongAnswers = [
+                    `${angularVelocity + 0.5} rad/s`,
+                    `${angularVelocity - 0.5} rad/s`,
+                    `${angularVelocity * 2} rad/s`
+                ];
+                hint = "La velocidad angular se calcula como: velocidad tangencial ÷ radio";
+                break;
+                
+            case 'centripetalAcceleration':
+                const a_c = Math.round(radius * angularVelocity * angularVelocity * 10) / 10;
+                question = `Un objeto gira en una trayectoria circular de radio ${radius} m con velocidad angular de ${angularVelocity} rad/s. ¿Cuál es su aceleración centrípeta?`;
+                correctAnswer = `${a_c} m/s²`;
+                wrongAnswers = [
+                    `${a_c + 1} m/s²`,
+                    `${a_c - 1} m/s²`,
+                    `${Math.round(a_c * 2)} m/s²`
+                ];
+                hint = "La aceleración centrípeta se calcula como: radio × (velocidad angular)²";
+                break;
+                
+            default: // period
+                const period = Math.round((2 * Math.PI / angularVelocity) * 10) / 10;
+                question = `Un objeto gira en una trayectoria circular con velocidad angular de ${angularVelocity} rad/s. ¿Cuál es el período de su movimiento?`;
+                correctAnswer = `${period} s`;
+                wrongAnswers = [
+                    `${period + 0.5} s`,
+                    `${period - 0.5} s`,
+                    `${Math.round(period * 2)} s`
+                ];
+                hint = "El período se calcula como: 2π ÷ velocidad angular";
+        }
+        
+        return { question, correctAnswer, wrongAnswers, hint };
+    }
+
+    function generateQuestion() {
+        let questionData;
+        
+        switch(currentSection) {
+            case "mru":
+                questionData = generateMRUQuestion(level);
+                break;
+            case "mrua":
+                questionData = generateMRUAQuestion(level);
+                break;
+            case "mcl":
+                questionData = generateMCLQuestion(level);
+                break;
+        }
+        
+        currentQuestion = questionData;
+        
+        // Mostrar la pregunta
+        $("#question").text(questionData.question);
+        
+        // Preparar respuestas
+        let answers = [...questionData.wrongAnswers, questionData.correctAnswer];
+        answers = shuffle(answers);
+        
+        // Mostrar respuestas
+        $(".answer").each(function(index) {
+            $(this).removeClass("correct incorrect");
+            $(this).find(".answer-text").text(answers[index]);
+        });
+        
+        // Mostrar pista
+        $("#hintText").text(questionData.hint);
+        
+        saveProgress();
+    }
+
+    function setupEventListeners() {
+        // Eventos para respuestas
+        $(".answer").on("click", function() {
+            const selectedAnswer = $(this).find(".answer-text").text();
+            
+            if (selectedAnswer === currentQuestion.correctAnswer) {
+                // Respuesta correcta
+                $(this).addClass("correct");
+                $(this).find("i").attr("class", "fas fa-check");
+                
+                // Actualizar puntos y racha
+                streak++;
+                points += (10 * streak);
+                $("#streak").text(streak);
+                $("#points").text(points);
+                
+                // Comprobar si sube de nivel
+                if (streak % 3 === 0) {
+                    level++;
+                    $("#level").text(level);
+                }
+                
+                // Generar nueva pregunta después de un breve retraso
+                setTimeout(function() {
+                    generateQuestion();
+                }, 1000);
+            } else {
+                // Respuesta incorrecta
+                $(this).addClass("incorrect");
+                $(this).find("i").attr("class", "fas fa-times");
+                
+                // Mostrar la respuesta correcta
+                $(".answer").each(function() {
+                    if ($(this).find(".answer-text").text() === currentQuestion.correctAnswer) {
+                        $(this).addClass("correct");
+                        $(this).find("i").attr("class", "fas fa-check");
+                    }
+                });
+                
+                // Reiniciar racha
+                streak = 0;
+                $("#streak").text(streak);
+                
+                // Generar nueva pregunta después de un breve retraso
+                setTimeout(function() {
+                    generateQuestion();
+                }, 1500);
+            }
+            
+            saveProgress();
+        });
+        
+        // Eventos para cambiar sección
+        $(".nav-item").on("click", function() {
+            const section = $(this).attr("id");
+            
+            $(".nav-item").removeClass("active");
+            $(this).addClass("active");
+            
+            currentSection = section;
+            generateQuestion();
+        });
+        
+        // Eventos para mostrar pista
+        $(".hint-icon").on("click", function() {
+            $("#hintModal").css("display", "flex");
+        });
+        
+        // Cerrar modal de pista
+        $(".close-modal").on("click", function() {
+            $("#hintModal").css("display", "none");
+        });
+        
+        // Eventos para mostrar información del juego
+        $("#header").on("click", function() {
+            $("#myModal").css("display", "flex");
+        });
+        
+        // Cerrar modal de información
+        $(".close").on("click", function() {
+            $("#myModal").css("display", "none");
+        });
+        
+        // Cerrar modales al hacer clic fuera
+        $(window).on("click", function(event) {
+            if (event.target.id === "hintModal") {
+                $("#hintModal").css("display", "none");
+            }
+            if (event.target.id === "myModal") {
+                $("#myModal").css("display", "none");
+            }
+        });
+    }
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function shuffle(array) {
+        let currentIndex = array.length, temporaryValue, randomIndex;
+        
+        while (0 !== currentIndex) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+            
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+        
+        return array;
+    }
+
+    function saveProgress() {
+        const gameData = {
+            points: points,
+            level: level,
+            streak: streak,
+            currentSection: currentSection
+        };
+        
+        localStorage.setItem("physicsGameData", JSON.stringify(gameData));
+    }
+
+    function loadProgress() {
+        const savedData = localStorage.getItem("physicsGameData");
+        
+        if (savedData) {
+            const gameData = JSON.parse(savedData);
+            points = gameData.points;
+            level = gameData.level;
+            streak = gameData.streak;
+            currentSection = gameData.currentSection;
+            
+            $("#points").text(points);
+            $("#level").text(level);
+            $("#streak").text(streak);
+            $(".nav-item").removeClass("active");
+            $(`#${currentSection}`).addClass("active");
+        }
+    }
+});
+   // Mostrar mensaje de bienvenida
+setTimeout(function() {
+    const welcomeMessage = `
+        <div class="welcome-header" style="margin-bottom: 15px;">
+            <i class="fa fa-gamepad" aria-hidden="true" style="font-size: 40px; color: #4CAF50;"></i>
+            <h2 style="margin: 10px 0 0;">¡Bienvenido al Juego de Física!</h2>
+        </div>
+        <div class="welcome-body" style="margin-bottom: 15px; font-size: 16px;">
+            <p>
+                <i class="fa fa-user" aria-hidden="true" style="color: #2196F3;"></i>
+                <em>El creador de este juego te agradece por jugar y aceptar este desafío.</em>
+            </p>
+            <p>
+                <i class="fa fa-thumbs-up" aria-hidden="true" style="color: #FF9800;"></i>
+                ¡Diviértete y mejora tus habilidades físicas!
+            </p>
+            <p>
+                <i class="fas fa-cogs" aria-hidden="true" style="color: #9C27B0;"></i>
+                <strong>Versión 1.0.4 (Versão de teste)</strong>
+            </p>
+        </div>
+        <div class="welcome-footer">
+            <button class="close-welcome" style="padding: 8px 15px; border: none; background: #e91e63; color: #fff; border-radius: 5px; cursor: pointer;">Cerrar</button>
+        </div>
+    `;
+
+    const $welcome = $("<div>")
+        .addClass("feedback-modal")
+        .css({
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%) scale(0.8)",
+            background: "#fff",
+            padding: "25px 30px",
+            borderRadius: "10px",
+            boxShadow: "0 8px 16px rgba(0,0,0,0.3)",
+            zIndex: 1000,
+            textAlign: "center",
+            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+            opacity: 0,
+            maxWidth: "450px",
+            width: "90%"
+        })
+        .html(welcomeMessage)
+        .appendTo("body");
+
+    // Animación de entrada (fade + scale)
+    setTimeout(() => {
+        $welcome.css({
+            transition: "all 0.5s ease-out",
+            opacity: 1,
+            transform: "translate(-50%, -50%) scale(1)"
+        });
+    }, 50);
+
+    // Cerrar al hacer clic en el botón
+    $welcome.find(".close-welcome").on("click", function() {
+        $welcome.css({
+            transition: "all 0.5s ease-in",
+            opacity: 0,
+            transform: "translate(-50%, -50%) scale(0.8)"
+        });
+        setTimeout(() => $welcome.remove(), 500);
+    });
+
+    // Cierre automático después de 5 segundos si no se cierra manualmente
+    setTimeout(() => {
+        if ($welcome.parent().length) {
+            $welcome.css({
+                transition: "all 0.5s ease-in",
+                opacity: 0,
+                transform: "translate(-50%, -50%) scale(0.8)"
+            });
+            setTimeout(() => $welcome.remove(), 500);
+        }
+    }, 5000);
+}, 500);
+
+  
+</script>
+
+</body>
+</html>
